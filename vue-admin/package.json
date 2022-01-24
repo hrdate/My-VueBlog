@@ -1,0 +1,37 @@
+{
+  "name": "blog-vue",
+  "version": "4.2.0",
+  "private": true,
+  "scripts": {
+    "dev": "npm run serve",
+    "serve": "vue-cli-service serve",
+    "build": "vue-cli-service build"
+  },
+  "dependencies": {
+    "async-validator": "^3.3.0",
+    "axios": "^0.18.1",
+    "babel-polyfill": "^6.26.0",
+    "element-ui": "^2.13.2",
+    "github-markdown-css": "^5.1.0",
+    "markdown-it": "^12.3.0",
+    "mavon-editor": "^2.9.0",
+    "moment": "^2.29.1",
+    "nprogress": "^0.2.0",
+    "qs": "^6.9.4",
+    "vue": "^2.6.10",
+    "vue-axios": "^3.4.0",
+    "vue-cropperjs": "^3.0.0",
+    "vue-i18n": "^8.18.1",
+    "vue-quill-editor": "^3.0.6",
+    "vue-router": "^3.3.2",
+    "vue-schart": "^2.0.0",
+    "vuedraggable": "^2.17.0",
+    "vuex": "^3.4.0",
+    "vuex-persistedstate": "^4.1.0"
+  },
+  "devDependencies": {
+    "@vue/cli-plugin-babel": "^3.9.0",
+    "@vue/cli-service": "^3.9.0",
+    "vue-template-compiler": "^2.6.10"
+  }
+}
