@@ -8,8 +8,8 @@
                     <div class="grid-content grid-con-1">
                         <i class="el-icon-lx-people grid-con-icon"></i>
                         <div class="grid-cont-right">
-                            <div class="grid-num">{{blogInfo.viewsCount}}</div>
-                            <div>用户访问量</div>
+                            <div class="grid-num">{{blogInfo.userCount}}</div>
+                            <div>用户数量</div>
                         </div>
                     </div>
                 </el-card>
@@ -19,7 +19,7 @@
                     <div class="grid-content grid-con-2">
                         <i class="el-icon-document grid-con-icon"></i>
                         <div class="grid-cont-right">
-                            <div class="grid-num">2</div>
+                            <div class="grid-num">{{blogInfo.articleCount}}</div>
                             <div>文章数量</div>
                         </div>
                     </div>
@@ -30,7 +30,7 @@
                     <div class="grid-content grid-con-3">
                         <i class="el-icon-lx-comment grid-con-icon"></i>
                         <div class="grid-cont-right">
-                            <div class="grid-num">5</div>
+                            <div class="grid-num">{{blogInfo.messageCount}}</div>
                             <div>留言数量</div>
                         </div>
                     </div>
@@ -41,7 +41,7 @@
                     <div class="grid-content grid-con-4">
                         <i class="el-icon-lx-comment grid-con-icon"></i>
                         <div class="grid-cont-right">
-                            <div class="grid-num">5</div>
+                            <div class="grid-num">{{blogInfo.commentsCount}}</div>
                             <div>评论数量</div>
                         </div>
                     </div>
@@ -57,7 +57,7 @@
         </el-card> -->
         <el-card shadow="hover" style="height:403px;">
             <div slot="header" class="clearfix">
-                <span>总图</span>
+                <span>用户访问量：{{blogInfo.viewsCount}}</span>
             </div>
             <div class="schart-box">
                 <schart class="schart" canvasId="line" :options="viewCountMonth"></schart>
@@ -93,10 +93,16 @@ import Schart from 'vue-schart';
 import bus from '../components/bus';
 export default {
     userName: 'Home',
+    created() {
+        this.getBlogInfo();
+        // this.handleListener();
+        // this.changeDate();
+    },
     data() {
         return {
             userName: this.$store.state.userName,
             email: this.$store.state.email,
+            tagDTOList: null,
             blogInfo: {
                 about: '',
                 avatar: '',
@@ -177,11 +183,6 @@ export default {
             return this.userName === 'admin' ? '超级管理员' : '普通用户';
         }
     },
-    created() {
-        this.getBlogInfo();
-        // this.handleListener();
-        // this.changeDate();
-    },
     // activated() {
     //     this.handleListener();
     // },
@@ -190,6 +191,13 @@ export default {
     //     bus.$off('collapse', this.handleBus);
     // },
     methods: {
+        getBlogInfo() {
+            var _this = this;
+            this.axios.get("/admin/bloginfo").then(({ data }) => {
+                _this.blogInfo = data.data;
+                _this.$store.commit("checkBlogInfo", data.data);
+            });
+        },
         changeDate() {
             const now = new Date().getTime();
             this.data.forEach((item, index) => {
@@ -197,11 +205,10 @@ export default {
                 item.userName = `${date.getFullYear()}/${date.getMonth() + 1}/${date.getDate()}`;
             });
         },
-        getBlogInfo() {
-            var _this = this;
-            this.axios.get("/bloginfo").then(({ data }) => {
-                _this.blogInfo = data.data[0];
-                _this.$store.commit("checkBlogInfo", data.data[0]);
+        getTagDTOList(){
+            var tagList = this.$store.state.tagList;
+            tagList.forEach(item => {
+                this.tagDTOList.push(item.id,item.tagName);
             });
         }
         // handleListener() {

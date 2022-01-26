@@ -178,6 +178,20 @@ export default {
     };
   },
   methods: {
+    listMessages() {
+      this.axios.get("/message/admin", {
+          params: {
+            currentPage: this.current,
+            pageSize: this.size,
+          }
+        })
+        .then( res  => {
+          console.log(res)
+          this.messageList = res.data.data.records;
+          this.count = res.data.data.total;
+          this.loading = false;
+        });
+    },
     selectionChange(messageList) {
       this.messageIdList = [];
       messageList.forEach(item => {
@@ -197,13 +211,18 @@ export default {
       this.listMessages();
     },
     deleteMessage(id) {
-      var param = {};
-      if (id != null) {
-        param = { data: [id] };
-      } else {
-        param = { data: this.messageIdList };
-      }
-      this.axios.delete("/message/admin", param).then(({ data }) => {
+      // var param = {};
+      // if (id != null) {
+      //   param = { data: [id] };
+      // } else {
+      //   param = { data: this.messageIdList };
+      // }
+      this.axios.delete("/message/del/"+id,{
+        headers: {
+            "Authorization": sessionStorage.getItem("token"),
+            "token": sessionStorage.getItem("token")
+          }
+        }).then(({ data }) => {
         if (data.code == 200) {
           this.$notify.success({
             title: "成功",
@@ -220,15 +239,20 @@ export default {
       });
     },
     updateMessageReview(id) {
-      let param = {};
-      if (id != null) {
-        param.idList = [id];
-      } else {
-        param.idList = this.messageIdList;
-      }
-      param.isReview = 1;
-      this.axios.put("/message/admin/review", param).then(({ data }) => {
-        if (data.code == 200) {
+      // let param = {};
+      // if (id != null) {
+      //   param.idList = [id];
+      // } else {
+      //   param.idList = this.messageIdList;
+      // }
+      // param.isReview = 1;
+      this.axios.get("/message/review/"+id,{
+          headers: {
+            "Authorization": sessionStorage.getItem("token"),
+            "token": sessionStorage.getItem("token")
+          }
+        }).then(({ data }) => {
+        if (data.code === 200) {
           this.$notify.success({
             title: "成功",
             message: data.msg
@@ -244,20 +268,6 @@ export default {
     },
     changeReview(review) {
       this.isReview = review;
-    },
-    listMessages() {
-      this.axios.get("/message/admin", {
-          params: {
-            currentPage: this.current,
-            pageSize: this.size,
-          }
-        })
-        .then( res  => {
-          console.log(res)
-          this.messageList = res.data.data.records;
-          this.count = res.data.data.total;
-          this.loading = false;
-        });
     }
   },
   watch: {

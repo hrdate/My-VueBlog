@@ -73,7 +73,7 @@ const routes = [
             },
             {
                 // friend友链管理
-                path: '/FriendLink',
+                path: '/friendLink',
                 component: () => import('../view/FriendLink.vue'),
                 meta: { title: '友链管理' }
             },
@@ -98,11 +98,6 @@ const routes = [
                 component: () => import( '../view/Website.vue'),
                 meta: { title: '网站管理'}
             },
-            {
-                path: '/about',
-                component: () => import( '../view/About.vue'),
-                meta: { title: '关于作者' }
-            }
         ]
     },
     {

@@ -9,7 +9,7 @@
         </el-breadcrumb>
         </div>
         <el-button type="primary" size="small" icon="el-icon-plus" 
-            @click="openModel(null)"> 新增
+            @click="openModel(null)"> 友链新增
         </el-button>
         <el-button type="danger" size="small" icon="el-icon-delete" :disabled="linkIdList.length == 0" 
             @click="deleteFlag = true">批量删除
@@ -73,12 +73,12 @@
         <el-table-column label="操作" align="center" width="160">
         <template slot-scope="scope">
             <el-button type="primary" size="mini" @click="openModel(scope.row)">
-            编辑
+            编辑 
             </el-button>
             <el-popconfirm
                 title="确定删除吗？"
                 style="margin-left:1rem"
-                @confirm="deleteLink(scope.row.id)"
+                @onConfirm="deleteLink(scope.row.linkId)"
             >
                 <el-button size="mini" type="danger" slot="reference">删除</el-button>
             </el-popconfirm>
@@ -142,6 +142,9 @@
 
 export default {
     name: "FriendLink",
+    created() {
+        this.getFriendLinkList();
+    },
     data() {
         return {
             loading: true,
@@ -162,9 +165,6 @@ export default {
             total: 0,
             pageSize: 5,
         };
-    },
-    created() {
-        this.getFriendLinkList();
     },
     methods: {
         getFriendLinkList() {
@@ -218,6 +218,8 @@ export default {
                 this.$message.error("友链地址不能为空");
                 return false;
             }
+            console.log("输出token");
+            console.log(sessionStorage.getItem("token"));
             this.axios.post("/friend/edit",this.linkForm,{
                 headers: {
                     "Authorization": sessionStorage.getItem("token"),
@@ -246,20 +248,32 @@ export default {
             this.pageSize = size;
             this.getFriendLinkList();
         },
-        deleteLink(id) {
-            var param = {};
-            if (id == null) {
-                param = { data: this.linkIdList };
-            } else {
-                param = { data: [id] };
-            }
-            this.axios.delete("/friend/del", param).then(({ data }) => {
+        /** *
+         * 删除数据
+         *
+         **/
+        deleteLink(linkId) {
+            // var param = {};
+            // if (linkId == null) {
+            //     param = { data: this.linkIdList };
+            // } else {
+            //     param = { data: [linkId] };
+            // }
+            // console.log("友链删除")
+            // console.log(linkId)
+            console.log("输出token");
+            console.log(sessionStorage.getItem("token"));
+            this.axios.delete("/friend/del/"+linkId,{
+              headers: {
+                    "Authorization": sessionStorage.getItem("token"),
+                    "token": sessionStorage.getItem("token")
+              }}).then(({ data }) => {
                 if (data.code == 200) {
                     this.$notify.success({
                         title: "成功",
                         message: data.msg
                     });
-                    this.listLinks();
+                    this.getFriendLinkList();
                 } else {
                     this.$notify.error({
                         title: "失败",
@@ -269,51 +283,6 @@ export default {
                 this.deleteFlag = false;
             });
         },
-        //新增数据表格
-        handleCreate() {
-            this.linkList.push({ linkId: null, linkName: "",linkUrl:"",avatar:"", edit: true });
-        },
-        /** *
-         * 删除数据
-         *
-         **/
-        deleted(row) {
-            const id = row.id;
-            this.$confirm('是否确认删除用户编号为"' + id + '"的数据项?', "警告", {
-                confirmButtonText: "确定",
-                cancelButtonText: "取消",
-                type: "warning"
-            }).then(function() {
-                return deleteTagById(id);
-            }).then(() => {
-                this.$message.warning("删除已成功");
-                this.page(1);
-            }).catch(err =>{
-                this.$message.error('修改失败');
-            });
-        },
-        //取消修改
-        cancelEdit(row) {
-            this.$message.warning("修改已取消");
-            this.page(1);
-        },
-        //提交修改
-        confirmEdit(row) {
-            const _this = this;
-            this.axios.post(`/FriendLink/edit`,row, {
-                headers: {
-                    "Authorization": localStorage.getItem("token"),
-                    'Content-Type': 'application/json; charset=UTF-8'
-                }
-            }).then(res=>{
-                _this.$message.success("修改成功");
-                row.edit = false;
-                _this.page(1);
-            }).catch(err =>{
-                this.$message.error('修改失败');
-            });
-        }
-
     }
 };
 </script>

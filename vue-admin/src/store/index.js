@@ -67,6 +67,7 @@ export default new Vuex.Store({
             state.token = token;
             // localStorage.setItem("token", token)
             sessionStorage.setItem("token", token)
+            sessionStorage.setItem("Authorization", token)
         },
         SET_USERINFO: (state, userInfo) => {
             state.userInfo = userInfo;

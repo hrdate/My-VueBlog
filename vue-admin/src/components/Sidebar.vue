@@ -78,7 +78,7 @@ export default {
                 // },
                 {
                     icon: 'el-icon-lx-emoji',
-                    index: '/FriendLink',
+                    index: '/friendLink',
                     title: '友链管理'
                 },
                 {
@@ -113,15 +113,10 @@ export default {
                     ]
                 },
                 {
-                    icon: 'el-icon-edit',
+                    icon: 'el-icon-user',
                     index: '/website',
                     title: '网站管理'
                 },
-                {
-                    icon: 'el-icon-user',
-                    index: '/about',
-                    title: '关于作者'
-                }
             ]
         };
     },

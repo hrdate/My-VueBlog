@@ -278,6 +278,13 @@ export default {
         isCommentReview: 0,
         isMessageReview: 0
       },
+      blogInfo:{
+        viewsCount: null,
+        notice: null,
+        about: null,
+        motto: null,
+        config: null
+      },
       activeName: "info"
     };
   },
@@ -307,9 +314,14 @@ export default {
       this.websiteConfigForm.alipayQRCode = response.data;
     },
     updateWebsiteConfig() {
-      this.axios
-        .put("/admin/blogInfo/config", JSON.stringify(this.websiteConfigForm))
-        .then(({ data }) => {
+      this.blogInfo.config = JSON.stringify(this.websiteConfigForm)
+      this.axios.post("/admin/blogInfo/config/update",this.blogInfo,{
+        headers: {
+            "Authorization": sessionStorage.getItem("token"),
+            "token": sessionStorage.getItem("token"),
+            // "Content-Type": "application/x-www-form-urlencoded"
+          }
+      }).then(({ data }) => {
           if (data.code==200) {
             this.$notify.success({
               title: "成功",

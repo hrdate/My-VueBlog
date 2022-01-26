@@ -165,33 +165,36 @@ export default {
             this.listArticles();
         },
         loadTags(){
-            const _this = this;  
-            this.axios.get(`/tag/tags`).then( res  => {
-                _this.tagList = res.data.data;
-                _this.$store.state.tagList = res.data.data
-            });
+            this.tagList = this.$store.state.tagList;
         },
         
         // 删除操作
-        handleDelete(rowId,title) {
+        handleDelete(articleId,title) {
             const _this = this;
             // 二次确认删除
             this.$confirm('确定要删除文章 \" '+title+' \" 吗？', '提示', {
+                confirmButtonText: '确定',
+                cancelButtonText: '取消',
                 type: 'warning'
             }).then(() => {
-                this.$axios.post('/article/del',rowId, {
+                _this.$axios.delete(`/article/del/`+articleId, {
                     headers: {
-                        "Authorization": localStorage.getItem("token")
+                        "token": sessionStorage.getItem("token"),
+                        "Authorization": sessionStorage.getItem("token")
                     }
-                }).then((res) => {
-                    _this.$alert('操作成功', '提示', {
-                        confirmButtonText: '确定',
-                        callback: action => {
-                            _this.$router.push("/article")
-                        }
-                    });
+                }).then(res => {
+                    if(res.data.code == 200){
+                        _this.$message.success('文章删除操作成功');
+                        _this.listArticles();
+                    }else{
+                        _this.$message.error(res.data.data);
+                    }
+                }).catch(() => {
+                    _this.$message.error('文章删除操作失败!');
                 });
-            }).catch(() => {});
+            }).catch(() => {
+                _this.$message.error('文章删除操作失败.');
+            });
         },
         changeTop(article) {
             let param = new URLSearchParams();

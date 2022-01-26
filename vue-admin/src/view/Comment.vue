@@ -146,7 +146,7 @@
       <!-- 来源 -->
       <el-table-column label="来源" align="center" width="100">
         <template slot-scope="scope">
-          <el-tag v-if="scope.row.articleTitle">文章</el-tag>
+          <el-tag v-if="scope.row.articleId">文章</el-tag>
           <el-tag v-else type="warning">友链</el-tag>
         </template>
       </el-table-column>
@@ -165,7 +165,7 @@
           <el-popconfirm
             style="margin-left:10px"
             title="确定删除吗？"
-            @confirm="deleteComments(scope.row.id)"
+            @onConfirm="deleteComments(scope.row.id)"
           >
             <el-button size="mini" type="danger" slot="reference">
               删除
@@ -232,6 +232,25 @@ export default {
     };
   },
   methods: {
+    listComments() {
+        var _this = this;
+        this.axios.get("/comments/admin", {
+          params: {
+            currentPage: this.current,
+            pageSize: this.size,
+            keywords: this.keywords,
+            type: this.type,
+            isReview: this.isReview
+          }
+        }).then(res => {
+        // console.log(res)
+            _this.commentList = res.data.data.records;
+            _this.current = res.data.data.current;
+            _this.total = res.data.data.total;
+            _this.size = res.data.data.size;
+            _this.loading=false;
+        });
+    },
     selectionChange(commentList) {
       this.commentIdList = [];
       commentList.forEach(item => {
@@ -254,15 +273,22 @@ export default {
       this.isReview = review;
     },
     updateCommentReview(id) {
-      let param = {};
-      if (id != null) {
-        param.idList = [id];
-      } else {
-        param.idList = this.commentIdList;
-      }
-      param.isReview = 1;
-      this.axios.put("/comments/admin/review", param).then(({ data }) => {
-        if (data.flag) {
+      // let param = {};
+      // if (id != null) {
+      //   param.idList = [id];
+      // } else {
+      //   param.idList = this.commentIdList;
+      // }
+      // param.isReview = 1;
+      console.log("输出token");
+      console.log(sessionStorage.getItem("token"));
+      this.axios.get("/comments/review/"+id,{
+          headers: {
+              "Authorization": sessionStorage.getItem("token"),
+              "token": sessionStorage.getItem("token")
+          }
+        }).then(({ data }) => {
+        if (data.code === 200) {
           this.$notify.success({
             title: "成功",
             message: data.msg
@@ -277,13 +303,18 @@ export default {
       });
     },
     deleteComments(id) {
-      var param = {};
-      if (id == null) {
-        param = { data: this.commentIdList };
-      } else {
-        param = { data: [id] };
-      }
-      this.axios.delete("/comments/admin", param).then(({ data }) => {
+      // var param = {};
+      // if (id == null) {
+      //   param = { data: this.commentIdList };
+      // } else {
+      //   param = { data: [id] };
+      // }
+      this.axios.delete("/comments/del/"+id,{
+        headers: {
+            "Authorization": sessionStorage.getItem("token"),
+            "token": sessionStorage.getItem("token")
+          }
+      }).then(({ data }) => {
         if (data.code==200) {
           this.$notify.success({
             title: "成功",
@@ -299,25 +330,7 @@ export default {
         this.remove = false;
       });
     },
-    listComments() {
-        var _this = this;
-        this.axios.get("/comments/admin", {
-          params: {
-            currentPage: this.current,
-            pageSize: this.size,
-            keywords: this.keywords,
-            type: this.type,
-            isReview: this.isReview
-          }
-        }).then(res => {
-        console.log(res)
-            _this.commentList = res.data.data.records;
-            _this.current = res.data.data.current;
-            _this.total = res.data.data.total;
-            _this.size = res.data.data.size;
-            _this.loading=false;
-        });
-    }
+    
   },
   watch: {
     isReview() {

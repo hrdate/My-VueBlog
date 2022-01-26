@@ -110,9 +110,9 @@ export default {
   },
   methods: {
       getTagList() {
-          const _this = this;
-          this.axios.get(`/tag/tags`).then(res=>{
-              _this.tagList = res.data.data;
+          this.axios.get(`/tag/tags`).then(res =>{
+              this.tagList = res.data.data;
+              this.$store.state.tagList = this.tagList;
           });
       },
       selectionChange(tagList) {
@@ -199,12 +199,12 @@ export default {
 </script>
 
 <style scoped>
-    .edit-input {
-        padding-right: 100px;
-    }
-    .cancel-btn {
-        position: absolute;
-        right: 15px;
-        top: 10px;
-    }
+.edit-input {
+    padding-right: 100px;
+}
+.cancel-btn {
+    position: absolute;
+    right: 15px;
+    top: 10px;
+}
 </style>

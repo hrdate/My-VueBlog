@@ -56,6 +56,7 @@ export default {
                         _this.$store.commit('login', res.data.data);
                         _this.$store.commit('SET_TOKEN', token);
                         _this.$store.commit("SET_USERINFO", res.data.data)
+                        this.$message.success('成功登录');
                         _this.$router.push("/")
                     }).catch(err =>{
                         this.$message.error('请输入账号和密码');
@@ -68,7 +69,6 @@ export default {
             });
         },
     },
-
 };
 </script>
 

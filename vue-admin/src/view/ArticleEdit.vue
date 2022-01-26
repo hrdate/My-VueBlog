@@ -47,17 +47,20 @@
 
 export default {
     name: 'ArticleEdit',
+    created() {
+        this.loadArticle();
+    },
     data() {
         return {
             tagList:[],
             editForm: {
                 id: null,
+                userId: null,
                 title: null,
                 description: null,
+                content: null,
                 tagId: null,
                 type: null,
-                userId: null,
-                content: null
             },
             rules: {
                 title: [
@@ -69,7 +72,10 @@ export default {
             },
         }
     },
-    created() {
+    
+    methods: {
+    
+    loadArticle(){
         const _this = this;
         const path = this.$route.path;
         if(path == "/article/add") {
@@ -88,11 +94,12 @@ export default {
                 _this.editForm.content = article.content;
             });
         }
-        this.axios.get(`/tag/tags`).then(res=>{
-            _this.tagList = res.data.data;
-        });
+        // this.axios.get(`/tag/tags`).then(res=>{
+        //     _this.tagList = res.data.data;
+        // });
+        this.tagList = this.$store.state.tagList;
     },
-    methods: {
+    
     submitForm() {
         const _this = this;
         if(_this.editForm.userId==null){

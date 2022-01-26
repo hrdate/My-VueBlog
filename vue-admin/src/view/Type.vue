@@ -85,82 +85,82 @@
 </template>
 
 <script>
-    import {TypeEidt} from "../api";
-    import {TypeList} from "../api";
-    export default {
-        name: "Type",
-        data() {
-            return {
-                types: {},
-                currentPage: 1,
-                total: 0,
-                pageSize: 10,
-            };
+import {TypeEidt} from "../api";
+import {TypeList} from "../api";
+export default {
+    name: "Type",
+    data() {
+        return {
+            types: {},
+            currentPage: 1,
+            total: 0,
+            pageSize: 10,
+        };
+    },
+    mounted() {
+        this.page(1);
+    },
+    methods: {
+        page(currentPage) {
+            const _this = this;
+            TypeList(currentPage).then(res =>{
+                _this.types = res.data.data.records;
+                _this.currentPage = res.data.data.current;
+                _this.total = res.data.data.total;
+                _this.pageSize = res.data.data.size;
+            });
         },
-        mounted() {
-            this.page(1);
+        //新增数据表格
+        handleCreate() {
+            this.types.push({ id: null, name: "", edit: true });
         },
-        methods: {
-            page(currentPage) {
-                const _this = this;
-                TypeList(currentPage).then(res =>{
-                    _this.types = res.data.data.records;
-                    _this.currentPage = res.data.data.current;
-                    _this.total = res.data.data.total;
-                    _this.pageSize = res.data.data.size;
-                });
-            },
-            //新增数据表格
-            handleCreate() {
-                this.types.push({ id: null, name: "", edit: true });
-            },
-            /** *
-             * 删除数据
-             *
-             *  */
-            deleted(row) {
-                const id = row.id;
-                this.$confirm('是否确认删除用户编号为"' + id + '"的数据项?', "警告", {
-                    confirmButtonText: "确定",
-                    cancelButtonText: "取消",
-                    type: "warning"
-                }).then(function() {
-                    return deleteTypeById(id);
-                }).then(() => {
-                    this.$message({
-                        message: "删除已成功",
-                        type: "warning"
-                    });
-                    this.page(1);
-                }).catch(function() {});
-            },
-            //取消修改
-            cancelEdit(row) {
+        /** *
+         * 删除数据
+         *
+         *  */
+        deleted(row) {
+            const id = row.id;
+            this.$confirm('是否确认删除用户编号为"' + id + '"的数据项?', "警告", {
+                confirmButtonText: "确定",
+                cancelButtonText: "取消",
+                type: "warning"
+            }).then(function() {
+                return deleteTypeById(id);
+            }).then(() => {
                 this.$message({
-                    message: "修改已取消",
+                    message: "删除已成功",
                     type: "warning"
                 });
                 this.page(1);
-            },
-            //提交修改
-            confirmEdit(row) {
-                const _this = this;
-                TypeEidt(row,{
-                    headers: {
-                        "Authorization": localStorage.getItem("token"),
-                        'Content-Type':'application/json; charset=UTF-8'
-                    }
-                }).then((res)=>{
-                    _this.$message({
-                        message: "修改成功",
-                        type: "success"
-                    });
-                    row.edit = false;
-                    _this.page(1);
+            }).catch(function() {});
+        },
+        //取消修改
+        cancelEdit(row) {
+            this.$message({
+                message: "修改已取消",
+                type: "warning"
+            });
+            this.page(1);
+        },
+        //提交修改
+        confirmEdit(row) {
+            const _this = this;
+            TypeEidt(row,{
+                headers: {
+                    "Authorization": localStorage.getItem("token"),
+                    'Content-Type':'application/json; charset=UTF-8'
+                }
+            }).then((res)=>{
+                _this.$message({
+                    message: "修改成功",
+                    type: "success"
                 });
-            }
+                row.edit = false;
+                _this.page(1);
+            });
         }
-    };
+    }
+};
 </script>
 
 <style scoped>
