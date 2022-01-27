@@ -74,15 +74,20 @@ export default {
         articleId: arr[2],
         replyId: this.replyId,
         parentId: this.parentId,
-        commentContent: this.commentContent
+        content: this.commentContent
       };
       this.commentContent = "";
-      this.axios.post("/comments", comment).then(({ data }) => {
-        if (data.flag) {
+      this.axios.post("/comments/edit", comment,{
+        headers: {
+              "Authorization": sessionStorage.getItem("token"),
+              "token": sessionStorage.getItem("token"),
+          }
+      }).then(({ data }) => {
+        if (data.code == 200) {
           this.$emit("reloadReply", this.index);
           this.$toast({ type: "success", message: "回复成功" });
         } else {
-          this.$toast({ type: "error", message: data.message });
+          this.$toast({ type: "error", message: data.msg });
         }
       });
     },

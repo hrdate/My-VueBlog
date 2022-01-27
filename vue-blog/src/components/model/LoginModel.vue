@@ -53,8 +53,8 @@
 export default {
   data: function() {
     return {
-      email: "",
-      password: "",
+      email: "test@qq.com",
+      password: "admin",
       show: false
     };
   },
@@ -87,33 +87,35 @@ export default {
     login() {
       var reg = /^[A-Za-z0-9\u4e00-\u9fa5]+@[a-zA-Z0-9_-]+(\.[a-zA-Z0-9_-]+)+$/;
       if (!reg.test(this.email)) {
-        this.$toast({ type: "error", message: "邮箱格式不正确" });
+        this.$message.error('邮箱格式不正确');
         return false;
       }
       if (this.password.trim().length == 0) {
-        this.$toast({ type: "error", message: "密码不能为空" });
+        this.$message.error('密码不能为空');
         return false;
       }
       const that = this;
       //发送登录请求  
       // 2698640956@qq.com  123456
-      that.axios.post("/user/login",{
-          email : that.email,
-          password : that.password
+      this.axios.post("/user/login",{
+          email : this.email,
+          password : this.password
         }
-      ).then(({ data }) => {
-        console.log(data)
-        if (data.code == 200) {
+      ).then(res => {
+        console.log(res)
+        if (res.data.code === 200) {
           that.email = "";
           that.password = "";
-          that.$store.commit("login", data.data);
+          that.$store.commit("login", res.data.data);
           that.$store.commit("closeModel");
-          that.$message({ type: "success", message: data.msg });
+          const token = res.headers['authorization'];
+          that.$store.commit("token",token);
+          this.$message.success('用户登录成功');
         } else {
-          that.$message({ type: "error", message: data.msg });
+          this.$message.error('用户登录失败');
         }
       }).catch(({err}) =>{
-        that.$message({ type: "error", message: err.msg });
+        this.$message.error(err.msg);
       });
     },
     qqLogin() {

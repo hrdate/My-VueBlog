@@ -242,8 +242,7 @@ export default {
       this.content += key;
     },
     checkReplies(index, item) {
-      this.axios
-        .get("/comments/replies/" + item.id, {
+      this.axios.get("/comments/replies/" + item.id, {
           params: { current: 1 }
         })
         .then(({ data }) => {
@@ -270,8 +269,7 @@ export default {
       this.current++;
       const path = this.$route.path;
       const arr = path.split("/");
-      this.axios
-        .get("/comments", {
+      this.axios.get("/comments", {
           params: { current: this.current, blogId: arr[2] }
         })
         .then(({ data }) => {
@@ -309,7 +307,11 @@ export default {
         content: this.content
       };
       this.content = "";
-      this.axios.post("/comments/edit", comment).then(({ data }) => {
+      this.axios.post("/comments/edit", comment,{
+        headers: {
+              "Authorization": sessionStorage.getItem("token")
+          }
+      }).then(({ data }) => {
         if (data.code == 200) {
           //查询最新评论
           this.$emit("reloadComment");

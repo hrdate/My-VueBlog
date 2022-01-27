@@ -46,13 +46,17 @@
                 {{ tag.tagName }}
               </router-link>
             </div> -->
+            <!-- 文章分类 -->
+            <div class="tag-wrapper tag-btn" style="">
+              {{item.type}}
+            </div>
           </v-card>
         </v-col>
       </v-row>
       <!-- 无限加载 -->
-      <!-- <infinite-loading @infinite="infiniteHandler">
+      <infinite-loading @infinite="infiniteHandler">
         <div slot="no-more" />
-      </infinite-loading> -->
+      </infinite-loading>
     </div>
   </div>
 </template>
@@ -60,8 +64,12 @@
 <script>
 export default {
   created() {
-    // const path = this.$route.path;
-    this.title = "标签";
+    const path = this.$route.path;
+    if (path.indexOf("/categories") != -1) {
+      this.title = "分类";
+    } else {
+      this.title = "标签";
+    }
     this.categoryOrTag = "tag-banner";
     this.infiniteHandler();
   },
@@ -163,11 +171,12 @@ export default {
 .tag-btn {
   display: inline-block;
   font-size: 0.725rem;
+  text-align: center;
   line-height: 22px;
   height: 22px;
   border-radius: 10px;
   padding: 0 12px !important;
-  background: linear-gradient(to right, #bf4643 0%, #6c9d8f 100%);
+  background: linear-gradient(to right, #ffffff 0%, #b3a6a6 100%);
   opacity: 0.6;
   margin-right: 0.5rem;
 }

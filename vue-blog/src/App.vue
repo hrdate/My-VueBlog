@@ -3,7 +3,7 @@
     <!-- 导航栏 -->
     <TopNavBar></TopNavBar>
     <!-- 侧边导航栏 -->
-    <SideNavBar></SideNavBar>
+    <!-- <SideNavBar></SideNavBar> -->
     <!-- 内容 -->
     <v-content>
       <router-view :key="$route.fullPath" />
@@ -32,7 +32,7 @@
 
 <script>
 import TopNavBar from "./components/layout/TopNavBar";
-import SideNavBar from "./components/layout/SideNavBar";
+// import SideNavBar from "./components/layout/SideNavBar";
 import Footer from "./components/layout/Footer";
 import BackTop from "./components/BackTop";
 import searchModel from "./components/model/SearchModel";
@@ -52,7 +52,7 @@ export default {
   components: {
     TopNavBar,
     Player,
-    SideNavBar,
+    // SideNavBar,
     Footer,
     BackTop,
     searchModel,
@@ -65,7 +65,7 @@ export default {
   methods: {
     getBlogInfo() {
       this.axios.get("/bloginfo").then(({ data }) => {
-        var blogInfo = data.data[0];
+        var blogInfo = data.data;
         this.$store.commit("checkBlogInfo", blogInfo);
       });
     },

@@ -148,11 +148,11 @@ export default {
         this.$router.go(-1);
       }
       this.axios.get("/logout").then(({ data }) => {
-        if (data.flag) {
+        if (data.code == 200) {
           this.$store.commit("logout");
-          this.$toast({ type: "success", message: data.message });
+          this.$toast({ type: "success", message: data.msg });
         } else {
-          this.$toast({ type: "error", message: data.message });
+          this.$toast({ type: "error", message: data.msg });
         }
       });
     }

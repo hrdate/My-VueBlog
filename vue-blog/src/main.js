@@ -2,6 +2,8 @@ import Vue from "vue";
 import App from "./App.vue";
 import router from "./router";
 import store from "./store";
+import ElementUI from 'element-ui';
+import 'element-ui/lib/theme-chalk/index.css';
 import vuetify from "./plugins/vuetify";
 import animated from "animate.css";
 import "./assets/css/index.css";
@@ -25,11 +27,15 @@ import "nprogress/nprogress.css";
 
 //网络请求前缀
 axios.defaults.baseURL = "http://127.0.0.1:6515";
+// axios.defaults.baseURL = "http://101.33.203.52:6515";
 
 Vue.prototype.config = config;
 Vue.config.productionTip = false;
 Vue.use(animated);
 Vue.use(Share);
+Vue.use(ElementUI, {
+  size: 'small'
+});
 Vue.use(vueBaberrage);
 Vue.use(InfiniteLoading);
 // axios.defaults.headers['Content-Type'] = 'application/x-www-form-urlencoded'

@@ -84,7 +84,7 @@
                 :to="'/tag/' + item.tagId"
                 class="mr-1"
               >
-                <v-icon size="14">mdi-tag-multiple</v-icon>{{ tagList[item.tagId-1].tagName }}
+                <v-icon size="14">mdi-tag-multiple</v-icon>{{ tagList[ item.tagId-1 ].tagName }}
               </router-link>
             </div>
             <!-- 文章内容 -->
@@ -228,7 +228,11 @@ export default {
       current: 1,
       total: 5,
       totalPage: 1,
-      tagList: [],
+      tagList: {
+        id: null,
+        tagName: null,
+        created: null
+      },
       tagCount: 0,
     };
   },
@@ -269,13 +273,13 @@ export default {
       this.time = str;
     },
     getBlogInfo() {
-      this.blogInfo = this.$$store.state.blogInfo;
-      // this.axios.get("/bloginfo").then(({ data }) => {
-      //   this.blogInfo = data.data[0];
-      //   this.$store.commit("checkBlogInfo", data.data[0]);
-      // });
+      // this.blogInfo = this.$$store.state.blogInfo;
+      this.axios.get("/bloginfo").then(({ data }) => {
+        this.blogInfo = data.data;
+        this.$store.commit("checkBlogInfo", data.data);
+      });
       this.infiniteHandler();
-      this.loadTags();
+      this.loadTagList();
     },
     // infiniteHandler($state) {
     infiniteHandler() {
@@ -303,14 +307,14 @@ export default {
         }
       );
     },
-    loadTags(){
+    loadTagList(){
       var that = this;  
       this.axios.get("/tag/tags").then(({ data }) => {
             // console.log(data);
             if(data.code==200){
               that.tagList = data.data;
               that.tagCount = that.tagList.length;
-              that.$store.state.tagList = data.data;
+              this.$store.commit("saveTagList",that.tagList)
             }
         });
     },

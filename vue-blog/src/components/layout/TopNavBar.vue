@@ -84,6 +84,7 @@
 </template>
 
 <script>
+import { Message } from 'element-ui';
 export default {
   mounted() {
     window.addEventListener("scroll", this.scroll);
@@ -119,11 +120,13 @@ export default {
     },
     logout() {
       this.axios.get("/user/logout").then(({ data }) => {
+        console.log(data)
         if (data.code == 200) {
           this.$store.commit("logout");
-          this.$message({ type: "success", message: data.msg });
+          Message.success('用户退出成功')
+          // this.$message.success('用户退出成功')
         } else {
-          this.$message({ type: "error", message: data.msg });
+          this.$message.error('用户退出失败');
         }
       });
       //如果在个人中心则跳回上一页

@@ -6,6 +6,7 @@ Vue.use(Vuex);
 
 export default new Vuex.Store({
   state: {
+    token: null,
     searchFlag: false,
     loginFlag: false,
     registerFlag: false,
@@ -23,7 +24,18 @@ export default new Vuex.Store({
     tagList: [],
     articleLikeSet: [],
     commentLikeSet: [],
-    blogInfo: {}
+    blogInfo: {
+      notice: null,
+      viewsCount: null,
+      avatar: null,
+      name: null,
+      motto: null,
+      about: null,
+      created: null,
+      config: {
+
+      }
+    }
   },
   mutations: {
     login(state, user) {
@@ -36,6 +48,10 @@ export default new Vuex.Store({
       state.commentLikeSet = user.commentLikeSet ? user.commentLikeSet : [];
       state.email = user.email;
       state.loginType = user.loginType;
+    },
+    token(state,token){
+      state.token = token
+      sessionStorage.setItem("token",token)
     },
     logout(state) {
       state.userId = null;
@@ -56,6 +72,9 @@ export default new Vuex.Store({
     },
     saveEmail(state, email) {
       state.email = email;
+    },
+    saveTagList(state,tagList){
+      state.tagList = tagList;
     },
     updateUserInfo(state, user) {
       state.userName = user.userName;

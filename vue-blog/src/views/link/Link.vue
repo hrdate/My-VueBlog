@@ -73,19 +73,19 @@ export default {
   methods: {
     listFriendLink() {
       this.axios.get("/friend/friends").then(({ data }) => {
-        // console.log(data);
-        this.friendLinkList = data.data;
+        if(data.code === 200){
+          this.friendLinkList = data.data;
+        }
       });
     },
     listComments() {
-      this.axios
-        .get("/comments", {
-          params: { current: 1 }
-        })
-        .then(({ data }) => {
-          this.commentList = data.data.recordList;
-          this.count = data.data.count;
-        });
+      // this.axios.get("/comments", {
+      //     params: { current: 1 }
+      //   })
+      //   .then(({ data }) => {
+      //     this.commentList = data.data.recordList;
+      //     this.count = data.data.count;
+      //   });
     }
   }
 };

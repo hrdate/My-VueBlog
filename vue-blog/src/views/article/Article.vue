@@ -125,19 +125,19 @@
               <div class="animated fadeInDown reward-main">
                 <ul class="reward-all">
                   <li class="reward-item">
-                    <!-- <img
+                    <img
                       class="reward-img"
-                      :src="require('../../assets/img/wechat.png')"
-                    /> -->
+                      :src="require('../../assets/img/wechat.jpg')"
+                    />
                     <div class="reward-desc">微信</div>
                   </li>
-                  <li class="reward-item">
-                    <!-- <img
+                  <!-- <li class="reward-item">
+                    <img
                       class="reward-img"
                       :src="require('../../assets/img/alipay.png')"
-                    /> -->
+                    /> 
                     <div class="reward-desc">支付宝</div>
-                  </li>
+                  </li> -->
                 </ul>
               </div>
             </a>
@@ -176,7 +176,7 @@
                 :key="item.id"
               >
                 <router-link :to="'/tag/' + item.tagId" class="content-cover">
-                  <!-- <img :src="item.articleCover" /> -->
+                  <img :src="item.articleCover" />
                 </router-link>
                 <div class="content">
                   <div class="content-title">
@@ -204,6 +204,7 @@ export default {
     Comment
   },
   created() {
+    this.userId = this.$store.state.userId
     this.getArticle();
     this.countLike();
     this.listComment();
@@ -219,14 +220,14 @@ export default {
         sites: ["qzone", "wechat", "qq"],
         wechatQrcodeTitle   : '微信扫一扫：分享'
       },
-      userId: this.$store.state.userId,
+      userId: null,
       imgList: [],
       article: {},
       articleLatestList: [],
       commentList: [],
       count: 0,
       likeCount: {
-        countBlogLike: 0
+        countBlogLike: 2
       },
       wordNum: "",
       readTime: "",
@@ -290,15 +291,19 @@ export default {
       const path = this.$route.path;
       const arr = path.split("/");
       const articleId = arr[arr.length - 1];
-      this.axios.get("/comments/"+articleId)
+      this.axios.get("/comments/article/"+articleId)
         .then(({ data }) => {
-          this.commentList = data.data.recordList;
-          this.count = data.data.count;
+          console.log("评论列表")
+          console.log(data)
+          this.commentList = data.data;
+          this.count = data.data.length;
         });
     },
     listNewestArticles() {
       this.axios.get("/article/latest").then(({ data }) => {
-        this.articleLatestList = data.data;
+        if(data.code == 200){
+          this.articleLatestList = data.data;
+        }
       });
     },
     countLike(){
@@ -307,16 +312,16 @@ export default {
       const arr = path.split("/");
       const articleId = arr[arr.length - 1];
       this.axios.get("/article/likeCount/"+articleId).then(({data}) => {
-        this.likeCount = data.data;
-        console.log("likeCount:");
-        console.log(this.likeCount);
+        if(data.code == 200){
+          this.likeCount.countBlogLike = data.data + 2
+        }
       }); 
     },
     like() {
       // var that = this;
       // 判断登录
       // console.log("userId:"+this.$store.state.userId);
-      if (!this.$store.state.userId) {
+      if (!this.userId) {
         this.$store.state.loginFlag = true;
         return false;
       }
@@ -324,9 +329,15 @@ export default {
       const path = this.$route.path;
       const arr = path.split("/");
       const articleId = arr[arr.length - 1];
-      this.axios.get("/article/like/"+this.$store.state.userId+"/"+articleId).then(({ res }) => {
+      this.axios.get("/article/like/"+this.userId+"/"+articleId,{
+        headers: {
+              "Authorization": sessionStorage.getItem("token"),
+          }
+      }).then(({ res }) => {
+        // console.log(res)
         if (res.code == 200) {
           //判断是否点赞
+          this.likeCount.countBlogLike += res.data;
         }
       });
     },
@@ -649,8 +660,8 @@ export default {
   list-style-type: none;
 }
 .reward-img {
-  width: 130px;
-  height: 130px;
+  width: 180px;
+  height: 180px;
   display: block;
 }
 .reward-desc {
