@@ -63,9 +63,9 @@
         <div class="comment-meta">
           <!-- 用户名 -->
           <div class="comment-user">
-            <span v-if="!item.webSite">{{ item.userName }}</span>
+            <span v-if="!item.webSite">{{ item.userId }} {{ item.userName }}</span>
             <a v-else :href="item.webSite" target="_blank">
-              {{ item.userName }}
+              {{ item.userId }}{{ item.userName }}
             </a>
             <span class="blogger-tag" v-if="item.userId == 1">博主</span>
           </div>
@@ -243,7 +243,7 @@ export default {
     },
     checkReplies(index, item) {
       this.axios.get("/comments/replies/" + item.id, {
-          params: { current: 1 }
+          params: { currentPage: 1 }
         })
         .then(({ data }) => {
           this.$refs.check[index].style.display = "none";
@@ -258,7 +258,7 @@ export default {
       //查看下一页回复
       this.axios
         .get("/comments/replies/" + commentId, {
-          params: { current: current }
+          params: { currentPage: current }
         })
         .then(({ data }) => {
           this.commentList[index].replyDTOList = data.data;
@@ -268,13 +268,24 @@ export default {
       //查看下一页评论
       this.current++;
       const path = this.$route.path;
-      const arr = path.split("/");
-      this.axios.get("/comments", {
-          params: { current: this.current, blogId: arr[2] }
-        })
-        .then(({ data }) => {
-          this.commentList.push(...data.data.recordList);
+      if(path == "/links"){
+        this.axios.get("/comments/friendLink",{
+          params: { currentPage: this.current }
+        }).then(({ data }) => {
+            this.commentList.push(...data.data.records);
+            console.log("currentPage:"+this.current)
         });
+      }else {
+        const arr = path.split("/");
+        const articleId = arr[arr.length - 1];
+        this.axios.get("/comments/article/"+articleId, {
+            params: { currentPage: this.current }
+          })
+          .then(({ data }) => {
+            this.commentList.push(...data.data.records);
+            console.log("currentPage:"+this.current)
+          });
+      }
     },
     insertComment() {
       //判断登录
@@ -300,11 +311,16 @@ export default {
       const path = this.$route.path;
       const arr = path.split("/");
       var articleId = arr[arr.length - 1];
+      if(path =="/links"){
+        articleId = null
+      }
       var comment = {
         userId : this.$store.state.userId,
+        userName: this.$store.state.userName,
         email : this.$store.state.email,
         articleId: articleId,
-        content: this.content
+        content: this.content,
+        isReview: 0
       };
       this.content = "";
       this.axios.post("/comments/edit", comment,{

@@ -45,9 +45,10 @@ import Player from "./components/zw-player/player.vue";
 export default {
   created() {
     // 获取博客信息
-    this.getBlogInfo();
+    this.getBlogInfo()
     // 上传访客信息
     // this.axios.post("/api/report");
+    // this.$state.loaded();
   },
   components: {
     TopNavBar,
@@ -65,10 +66,12 @@ export default {
   methods: {
     getBlogInfo() {
       this.axios.get("/bloginfo").then(({ data }) => {
-        var blogInfo = data.data;
-        this.$store.commit("checkBlogInfo", blogInfo);
+        if(data.code == 200){
+          this.$store.commit("checkBlogInfo", data.data);
+        }
       });
     },
+    
     blogInfo() {
       return this.$store.state.blogInfo;
     },

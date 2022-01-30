@@ -4,7 +4,7 @@
     <div class="home-banner">
       <div class="banner-container">
         <!-- 联系方式 -->
-        <h1 class="blog-title animated zoomIn">diloveyu</h1>
+        <h1 class="blog-title animated zoomIn">{{websiteConfigForm.websiteName}}</h1>
         <!-- 一言 -->
         <div class="blog-intro" style="color: grey">
           {{ obj.output }} <span class="typed-cursor">|</span>
@@ -47,9 +47,21 @@
           <!-- 文章封面图 -->
           <div :class="isRight(index)">
             <router-link :to="'/article/' + item.id">
-              <v-img
+              <v-img v-if="item.articleCover!=null"
                 class="on-hover" width="100%" height="100%"
                 :src="item.articleCover"
+              />
+              <v-img v-if="item.id%3==1"
+                class="on-hover" width="100%" height="100%"
+                src="../../assets/img/QuAn_1.jpg"
+              />
+              <v-img v-if="item.id%3==2"
+                class="on-hover" width="100%" height="100%"
+                src="../../assets/img/QuAn_2.jpg"
+              />
+              <v-img v-if="item.id%3==0"
+                class="on-hover" width="100%" height="100%"
+                src="../../assets/img/pixiv_1.jpg"
               />
             </router-link>
           </div>
@@ -73,10 +85,8 @@
               {{ item.created | date }}
               <span class="separator">|</span>
               <!-- 文章分类 -->
-              <!-- <router-link :to="'/categories/' + item.categoryId">
-                <v-icon size="14">mdi-inbox-full</v-icon>
-                {{ item.categoryName }}
-              </router-link> -->
+              <v-icon size="14">mdi-inbox-full</v-icon>
+              {{ item.type }}
               <span class="separator">|</span>
               <!-- 文章标签 -->
               <router-link
@@ -91,13 +101,15 @@
             <div class="article-content">
               {{ item.content }}
             </div>
-          <!-- </div> -->
           </div>
         </v-card>
-        <!-- 无限加载
-        <infinite-loading @infinite="infiniteHandler">
+        <!-- 无限加载-->
+        <!-- <infinite-loading @infinite="infiniteHandler">
           <div slot="no-more" />
-        </infinite-loading> -->
+        </infinite-loading>  -->
+        <infinite-loading >
+          <div slot="no-more" />
+        </infinite-loading> 
         <!-- 分页按钮 -->
       <v-pagination
         color="#00C4B6"
@@ -115,8 +127,8 @@
               <v-avatar size="110">
                 <img class="author-avatar" src="../../assets/img/my.jpg" />
               </v-avatar>
-              <div style="font-size: 1.375rem">{{ blogInfo.websiteName}}</div>
-              <div style="font-size: 0.875rem;">{{ blogInfo.motto}}</div>
+              <div style="font-size: 1.375rem">{{ websiteConfigForm.websiteAuthor}}</div>
+              <div style="font-size: 0.875rem;">自由在高出</div>
             </div>
             <!-- 博客信息 -->
             <div class="blog-info-wrapper">
@@ -137,20 +149,25 @@
                 </router-link>
               </div>
             </div>
+            <!-- 社交信息 -->
             <div class="card-info-social">
               <a
-                class="iconfont iconqq"
+                class="mr-5 iconfont iconqq"
                 target="_blank"
-                href="http://wpa.qq.com/msgrd?v=3&uin=535523596&site=qq&menu=yes"
+                :href="
+                  'http://wpa.qq.com/msgrd?v=3&uin=' +
+                    this.websiteConfigForm.qq +
+                    '&site=qq&menu=yes'
+                "
               />
               <a
                 target="_blank"
-                href="https://github.com/hrdate"
-                class="ml-5 mr-5 iconfont icongithub"
+                :href="this.websiteConfigForm.github"
+                class="mr-5 iconfont icongithub"
               />
               <a
                 target="_blank"
-                href="https://gitee.com/diloveyu"
+                :href="this.websiteConfigForm.gitee"
                 class="iconfont icongitee-fill-round"
               />
             </div>
@@ -162,7 +179,7 @@
               公告
             </div>
             <div style="font-size:0.875rem" >
-              {{ blogInfo.websiteNotice }}
+              {{ websiteConfigForm.websiteNotice }}
             </div>
           </v-card>
           <!-- 网站信息 -->
@@ -218,14 +235,35 @@ export default {
       },
       articleList: [],
       blogInfo: {
-        about: '',
-        websiteAvatar: '',
-        motto: '',
-        websiteName: '',
-        websiteNotice: '',
         viewsCount: 0
       },
+      websiteConfigForm:{
+        websiteAvatar: "",
+        websiteName: "",
+        websiteAuthor: "",
+        websiteIntro: "",
+        websiteNotice: "",
+        websiteCreateTime: null,
+        websiteRecordNo: "",
+        socialLoginList: [],
+        socialUrlList: [],
+        qq: "",
+        github: "",
+        gitee: "",
+        userAvatar: "",
+        touristAvatar: "",
+        isReward: 1,
+        weiXinQRCode: "",
+        alipayQRCode: "",
+        isChatRoom: 1,
+        websocketUrl: "",
+        isMusicPlayer: 1,
+        isEmailNotice: 1,
+        isCommentReview: 0,
+        isMessageReview: 0
+      },
       current: 1,
+      pageSize: 5,
       total: 5,
       totalPage: 1,
       tagList: {
@@ -261,7 +299,9 @@ export default {
       });
     },
     runTime() {
-      var timeold = new Date().getTime() - new Date("October 6,2021").getTime();
+      
+      var timeold = new Date().getTime() - new Date(this.websiteConfigForm.websiteCreateTime+"").getTime();
+      // var timeold = new Date().getTime() - new Date("October 6,2021").getTime();
       var msPerDay = 24 * 60 * 60 * 1000;
       var daysold = Math.floor(timeold / msPerDay);
       var str = "";
@@ -273,21 +313,18 @@ export default {
       this.time = str;
     },
     getBlogInfo() {
-      // this.blogInfo = this.$$store.state.blogInfo;
-      this.axios.get("/bloginfo").then(({ data }) => {
-        this.blogInfo = data.data;
-        this.$store.commit("checkBlogInfo", data.data);
-      });
+      this.blogInfo = this.$store.state.blogInfo
+      this.websiteConfigForm = this.$store.state.websiteConfigForm
       this.infiniteHandler();
       this.loadTagList();
     },
-    // infiniteHandler($state) {
     infiniteHandler() {
       let that = this;  
       let md = require("markdown-it")();
       this.axios.get("/article/articles", {
           params: {
-            currentPage: this.current
+            currentPage: this.current,
+            pageSize: this.pageSize
           }
         })
         .then(({ data }) => {
@@ -303,18 +340,16 @@ export default {
           });
           that.articleList = data.data.records;
           that.current = data.data.current;
-          // that.$state.loaded();
+          that.$state.loaded();
         }
       );
     },
     loadTagList(){
-      var that = this;  
       this.axios.get("/tag/tags").then(({ data }) => {
-            // console.log(data);
             if(data.code==200){
-              that.tagList = data.data;
-              that.tagCount = that.tagList.length;
-              this.$store.commit("saveTagList",that.tagList)
+              this.tagList = data.data;
+              this.tagCount = this.tagList.length;
+              this.$store.commit("saveTagList",data.data)
             }
         });
     },

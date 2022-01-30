@@ -119,7 +119,11 @@ export default {
       this.$store.state.loginFlag = true;
     },
     logout() {
-      this.axios.get("/user/logout").then(({ data }) => {
+      this.axios.get("/user/logout",{
+        headers: {
+          "Authorization": sessionStorage.getItem("token")
+        }
+      }).then(({ data }) => {
         console.log(data)
         if (data.code == 200) {
           this.$store.commit("logout");

@@ -114,9 +114,9 @@
             <a :class="isLike" @click="like">
             <!-- <a :class="isLike" > -->
               <v-icon size="14" color="#fff">mdi-thumb-up</v-icon> 点赞
-              <span v-show="likeCount.countBlogLike > 0">{{
-                likeCount.countBlogLike
-              }}</span>
+              <span v-show="article.articleLike > 0">
+                {{article.articleLike}}
+              </span>
             </a>
             <a class="reward-btn">
               <!-- 打赏按钮 -->
@@ -206,7 +206,6 @@ export default {
   created() {
     this.userId = this.$store.state.userId
     this.getArticle();
-    this.countLike();
     this.listComment();
     this.listNewestArticles();
   },
@@ -226,9 +225,6 @@ export default {
       articleLatestList: [],
       commentList: [],
       count: 0,
-      likeCount: {
-        countBlogLike: 2
-      },
       wordNum: "",
       readTime: "",
       articleHref: window.location.href,
@@ -243,6 +239,7 @@ export default {
       const arr = path.split("/");
       const articleId = arr[arr.length - 1];
       this.axios.get("/article/"+ articleId).then(({ data }) => {
+        console.log(data)
         document.title = data.data.title;
         //将markdown转换为Html
         this.markdownToHtml(data.data);
@@ -291,12 +288,11 @@ export default {
       const path = this.$route.path;
       const arr = path.split("/");
       const articleId = arr[arr.length - 1];
-      this.axios.get("/comments/article/"+articleId)
-        .then(({ data }) => {
-          console.log("评论列表")
-          console.log(data)
-          this.commentList = data.data;
-          this.count = data.data.length;
+      this.axios.get("/comments/article/"+articleId,{
+        currentPage: 1,
+      }).then(({ data }) => {
+          this.commentList = data.data.records;
+          this.count = data.data.total;
         });
     },
     listNewestArticles() {
@@ -306,21 +302,10 @@ export default {
         }
       });
     },
-    countLike(){
-      // var that = this;
-      const path = this.$route.path;
-      const arr = path.split("/");
-      const articleId = arr[arr.length - 1];
-      this.axios.get("/article/likeCount/"+articleId).then(({data}) => {
-        if(data.code == 200){
-          this.likeCount.countBlogLike = data.data + 2
-        }
-      }); 
-    },
     like() {
-      // var that = this;
+      var _this = this;
+      this.userId = this.$store.state.userId;
       // 判断登录
-      // console.log("userId:"+this.$store.state.userId);
       if (!this.userId) {
         this.$store.state.loginFlag = true;
         return false;
@@ -329,16 +314,17 @@ export default {
       const path = this.$route.path;
       const arr = path.split("/");
       const articleId = arr[arr.length - 1];
-      this.axios.get("/article/like/"+this.userId+"/"+articleId,{
-        headers: {
-              "Authorization": sessionStorage.getItem("token"),
+      this.axios.get("/article/like/"+articleId,{
+        headers: {"Authorization": sessionStorage.getItem("token")}
+      }).then( res  => {
+        console.log("/article/like/"+this.userId+"/"+articleId)
+        console.log(res)
+          if (this.$store.state.articleLikeSet.indexOf(this.article.id) != -1){
+            _this.$set(_this.article, "articleLike", _this.article.articleLike - 1);
+          }else {
+            _this.$set(_this.article, "articleLike", _this.article.articleLike + 1);
           }
-      }).then(({ res }) => {
-        // console.log(res)
-        if (res.code == 200) {
-          //判断是否点赞
-          this.likeCount.countBlogLike += res.data;
-        }
+        this.$store.commit("articleLike", this.article.id);
       });
     },
     markdownToHtml(article) {

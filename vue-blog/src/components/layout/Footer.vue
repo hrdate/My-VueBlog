@@ -1,9 +1,9 @@
 <template>
   <v-footer app padless absolute v-if="!this.isMessage">
     <div class="footer-wrap">
-      <div>©2019 - {{ new Date().getFullYear() }} By 丶di</div>
+      <div>©2019 - {{ new Date().getFullYear() }} By {{this.$store.state.websiteConfigForm.websiteAuthor}}</div>
       <a href="https://beian.miit.gov.cn/" target="_blank">
-        湘ICP备xxxxxx号
+        {{this.$store.state.websiteConfigForm.websiteRecordNo}}
       </a>
     </div>
   </v-footer>

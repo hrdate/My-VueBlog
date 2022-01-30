@@ -6,11 +6,11 @@
     </div>
     <!-- 标签列表 -->
     <v-card class="blog-container">
-      <div class="tag-cloud-title">标签 - {{ this.$store.state.tagList.length }}</div>
+      <div class="tag-cloud-title">标签 - {{ this.count }}</div>
       <div class="tag-cloud">
         <router-link
           :style="{ 'font-size': Math.floor(Math.random() * 10) + 18 + 'px' }"
-          v-for="item of this.$store.state.tagList"
+          v-for="item of this.tagList"
           :key="item.id"
           :to="'/tag/' + item.id"
         >
@@ -24,22 +24,23 @@
 <script>
 export default {
   created() {
-    // this.listTags();
-  },
-  computed(){
-    // tagList = this.$store.state.tagList
-    // count = this.tagList.length
+    this.getTagList();
   },
   data: function() {
     return {
-      // tagList: [],
-      // count: 0
+      tagList: null,
+      count: 0
     };
   },
   methods: {
-    // listTags(){
-    // }
-  }
+    getTagList(){
+      this.tagList = this.$store.state.tagList;
+      this.count = this.tagList.length
+    }
+  },
+  computed(){
+    
+  },
 };
 </script>
 

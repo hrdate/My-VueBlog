@@ -33,9 +33,9 @@
         <v-icon color="blue">mdi-dots-horizontal-circle</v-icon> 添加友链
       </div>
       <blockquote>
-        <div>名称：丶di的个人博客</div>
-        <div>简介：不向人间怨不平</div>
-        <div>头像：https://www.xxx.com/avatar/xxx.jpg</div>
+        <div>名称：{{websiteConfigForm.websiteName}}</div>
+        <div>简介：{{ websiteConfigForm.websiteIntro }}</div>
+        <div>头像：{{ websiteConfigForm.websiteAvatar }}</div>
       </blockquote>
       <div class="mt-5 mb-5">
         需要交换友链的可在下方留言💖
@@ -45,10 +45,11 @@
       </blockquote>
       <!-- 评论 -->
       <Comment
-        :commentList="commentList"
-        :count="count"
-        @reloadComment="listComments"
+          :commentList="commentList"
+          :count="count"
+          @reloadComment="listComments"
       />
+
     </v-card>
   </div>
 </template>
@@ -79,14 +80,23 @@ export default {
       });
     },
     listComments() {
-      // this.axios.get("/comments", {
-      //     params: { current: 1 }
-      //   })
-      //   .then(({ data }) => {
-      //     this.commentList = data.data.recordList;
-      //     this.count = data.data.count;
-      //   });
+      this.axios.get("/comments/friendLink",{
+        currentPage: 1,
+      }).then(({ data }) => {
+          console.log("/comments/friendLink")
+          console.log(data)
+          if(data.code === 200){
+            this.commentList = data.data.records;
+            this.count = data.data.total;
+
+          }
+        });
     }
+  },
+  computed: {
+    websiteConfigForm() {
+      return this.$store.state.websiteConfigForm;
+    },
   }
 };
 </script>

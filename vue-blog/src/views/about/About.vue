@@ -14,7 +14,7 @@
           />
         </v-avatar>
       </div>
-      <div class="about-content markdown-body" v-html="aboutContent" />
+      <div class="about-content markdown-body" v-html="websiteIntro" />
     </v-card>
   </div>
 </template>
@@ -26,14 +26,14 @@ export default {
   },
   data: function() {
     return {
-      aboutContent: '',
+      websiteIntro: '',
     };
   },
   methods: {
     getAboutContent() {
       const MarkdownIt = require("markdown-it");
       const md = new MarkdownIt();
-      this.aboutContent = md.render(this.$store.state.blogInfo.about);
+      this.websiteIntro = md.render(this.$store.state.websiteConfigForm.websiteIntro);
     }
   }
 };

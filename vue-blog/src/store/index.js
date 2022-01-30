@@ -21,20 +21,36 @@ export default new Vuex.Store({
     webSite: null,
     loginType: null,
     email: null,
-    tagList: [],
+    tagList: null,
     articleLikeSet: [],
     commentLikeSet: [],
     blogInfo: {
-      notice: null,
       viewsCount: null,
-      avatar: null,
-      name: null,
-      motto: null,
-      about: null,
-      created: null,
-      config: {
-
-      }
+    },
+    websiteConfigForm: {
+        websiteAvatar: "",
+        websiteName: "",
+        websiteAuthor: "",
+        websiteIntro: "",
+        websiteNotice: "",
+        websiteCreateTime: null,
+        websiteRecordNo: "",
+        socialLoginList: [],
+        socialUrlList: [],
+        qq: "",
+        github: "",
+        gitee: "",
+        userAvatar: "",
+        touristAvatar: "",
+        isReward: 1,
+        weiXinQRCode: "",
+        alipayQRCode: "",
+        isChatRoom: 1,
+        websocketUrl: "",
+        isMusicPlayer: 1,
+        isEmailNotice: 1,
+        isCommentReview: 0,
+        isMessageReview: 0
     }
   },
   mutations: {
@@ -54,6 +70,8 @@ export default new Vuex.Store({
       sessionStorage.setItem("token",token)
     },
     logout(state) {
+      state.token = null;
+      sessionStorage.removeItem("token");
       state.userId = null;
       state.avatar = null;
       state.userName = null;
@@ -86,6 +104,7 @@ export default new Vuex.Store({
     },
     checkBlogInfo(state, blogInfo) {
       state.blogInfo = blogInfo;
+      state.websiteConfigForm = JSON.parse(blogInfo.config)
     },
     closeModel(state) {
       state.registerFlag = false;

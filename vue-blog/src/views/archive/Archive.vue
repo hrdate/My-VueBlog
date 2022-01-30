@@ -49,11 +49,10 @@ export default {
   methods: {
     listArchives() {
       this.axios
-        .get("/article/articles", {
+        .get("/article/archives", {
           params: { currentPage: this.current }
         })
         .then(({ data }) => {
-          console.log(data.data)
           this.archiveList = data.data.records;
           this.current = data.data.current;
           this.count = data.data.total;
