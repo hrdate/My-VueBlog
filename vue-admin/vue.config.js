@@ -2,7 +2,7 @@ module.exports = {
     transpileDependencies: ["vuetify"],
     productionSourceMap: false,
     devServer: {
-      port: 8081, //前端端口--随意，通过Nginx反向代理后都一样
+      port: 8082, //前端端口--随意，通过Nginx反向代理后都一样
       //host: 'localhost', //主机地址
       open: true,
       // proxy: {

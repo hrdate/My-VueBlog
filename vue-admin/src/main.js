@@ -5,27 +5,35 @@ import router from './router';
 // 默认主题
 import ElementUI from 'element-ui';
 import 'element-ui/lib/theme-chalk/index.css'; 
+Vue.use(ElementUI, {
+    size: 'small'
+});
 //makerdown文本编辑器
 import mavonEditor  from 'mavon-editor'
+Vue.use(mavonEditor);
 import 'mavon-editor/dist/css/index.css'
 import './assets/css/icon.css';
 import 'babel-polyfill';
+//图形
+// import ECharts from "vue-echarts";
+// Vue.use(ECharts)
 //请求
 import axios from 'axios';
+Vue.use(VueAxios, axios);
 import VueAxios from "vue-axios";
 // 定义全局时间戳过滤器
 import moment from "moment";
 //加载进度条
 import NProgress from 'nprogress'
 import 'nprogress/nprogress.css'
+//首页标签展示
+// import tagCloud from 'v-tag-cloud'
+// Vue.use(tagCloud)
+import tagCloud from "./components/tag-cloud";
+Vue.use(tagCloud);
 
-Vue.use(VueAxios, axios);
-Vue.use(mavonEditor);
-Vue.use(ElementUI, {
-    size: 'small'
-});
-
-axios.defaults.baseURL = "http://127.0.0.1:6515";
+// axios.defaults.baseURL = "http://127.0.0.1:6515";
+axios.defaults.baseURL = "http://101.33.203.52:6515";
 axios.defaults.headers.post["Content-Type"] = "application/json";
 
 // 阻止启动生产消息

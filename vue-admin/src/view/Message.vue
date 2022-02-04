@@ -102,7 +102,7 @@
       >
         <template slot-scope="scope">
           <i class="el-icon-time" style="margin-right:5px" />
-          {{ scope.row.created | date }}
+          {{ scope.row.created | dateTime }}
         </template>
       </el-table-column>
       <!-- 列操作 -->
@@ -120,8 +120,9 @@
           <el-popconfirm
             style="margin-left:10px"
             title="确定删除吗？"
-            @confirm="deleteMessage(scope.row.id)"
+            @onConfirm="deleteMessage(scope.row.id)"
           >
+            <!-- @confirm="deleteMessage(scope.row.id)" -->
             <el-button size="mini" type="danger" slot="reference">
               删除
             </el-button>
@@ -183,6 +184,8 @@ export default {
           params: {
             currentPage: this.current,
             pageSize: this.size,
+            isReview: this.isReview,
+            keywords: this.keywords,
           }
         })
         .then( res  => {
@@ -220,13 +223,12 @@ export default {
       this.axios.delete("/message/del/"+id,{
         headers: {
             "Authorization": sessionStorage.getItem("token"),
-            "token": sessionStorage.getItem("token")
           }
         }).then(({ data }) => {
         if (data.code == 200) {
           this.$notify.success({
             title: "成功",
-            message: data.msg
+            message: data.data
           });
           this.listMessages();
         } else {
@@ -249,7 +251,6 @@ export default {
       this.axios.get("/message/review/"+id,{
           headers: {
             "Authorization": sessionStorage.getItem("token"),
-            "token": sessionStorage.getItem("token")
           }
         }).then(({ data }) => {
         if (data.code === 200) {

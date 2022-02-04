@@ -91,18 +91,21 @@
 <script>
 import Schart from 'vue-schart';
 import bus from '../components/bus';
+import TagCloud from '../components/tagCloud.vue';
 export default {
     userName: 'Home',
     created() {
         this.getBlogInfo();
         // this.handleListener();
         // this.changeDate();
+        this.getTagDTOList();
     },
     data() {
         return {
             userName: this.$store.state.userName,
             email: this.$store.state.email,
-            tagDTOList: null,
+            loading: false,
+            tagDTOList: [],
             blogInfo: {
                 about: '',
                 avatar: '',
@@ -177,6 +180,7 @@ export default {
     },
     components: {
         Schart,
+        TagCloud,
     },
     computed: {
         role() {
@@ -206,10 +210,14 @@ export default {
             });
         },
         getTagDTOList(){
-            var tagList = this.$store.state.tagList;
+            var tagList = this.$store.state.tagList
             tagList.forEach(item => {
-                this.tagDTOList.push(item.id,item.tagName);
+                this.tagDTOList.push({
+                    "id": item.id,
+                    "name": item.tagName
+                });
             });
+            this.loading = false;
         }
         // handleListener() {
         //     bus.$on('collapse', this.handleBus);

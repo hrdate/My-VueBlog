@@ -8,21 +8,42 @@
                 <i class="el-icon-lx-cascades"/> 文章管理
             </el-breadcrumb-item>
         </el-breadcrumb>
+        <div class="review-menu">
+        <span>状态</span>
+        <span
+            @click="changeDelete(null)"
+            :class="isDelete == null ? 'active-review' : 'review'"
+        >
+            全部
+        </span>
+        <span
+            @click="changeDelete(1)"
+            :class="isDelete == 1 ? 'active-review' : 'review'"
+        >
+            回收站
+        </span>
+        <span
+            @click="changeDelete(0)"
+            :class="isDelete == 0 ? 'active-review' : 'review'"
+        >
+            已审核
+        </span>
+        </div>
     </div>
     <div>
         <div class="handle-box">
             <el-button icon="el-icon-edit-outline" type="primary" class="handle-del mr10"><router-link :to="{name: 'ArticleAdd',params: {articleId: 0}}">新增文章</router-link></el-button>
-            <el-select v-model="selectArticleType" placeholder="类型" class="handle-select mr10">
+            <!-- <el-select v-model="selectArticleType" placeholder="类型" class="handle-select mr10">
                 <el-option key="1" label="原创" value="原创"/>
                 <el-option key="2" label="转载" value="转载"/>
-                <el-option key="2" label="翻译" value="翻译"/>
-            </el-select>
-            <el-select v-model="selectArticleTag" placeholder="标签" class="handle-select mr10">
+                <el-option key="3" label="翻译" value="翻译"/>
+            </el-select> -->
+            <el-select v-model="selectArticleTagId" placeholder="标签" class="handle-select mr10">
                 <el-option
                     v-for="item in tagList"
                     :key="item.tagName"
                     :label="item.tagName"
-                    :value="item.tagName">
+                    :value="item.id">
                 </el-option>
             </el-select>
             <el-input v-model="name" placeholder="关键字" class="handle-input mr10"/>
@@ -42,7 +63,7 @@
             <el-table-column prop="content" :show-overflow-tooltip="true" label="文章原文"/>
             <el-table-column prop="viewsCount" width="80px" label="阅读量"/>
             <el-table-column prop="commentNum" width="80px" label="评论量"/>
-            <el-table-column prop="likeNum" width="80px" label="点赞量"/>
+            <el-table-column prop="articleLike" width="80px" label="点赞量"/>
             <!-- 文章置顶 -->
             <el-table-column prop="isTop" label="置顶" width="80px" align="center">
                 <template slot-scope="scope">
@@ -50,11 +71,11 @@
                     v-model="scope.row.isTop"
                     active-color="#13ce66"
                     inactive-color="#F4F4F5"
-                    :disabled="scope.row.isDelete == 1"
                     :active-value="1"
                     :inactive-value="0"
                     @change="changeTop(scope.row)"
                 />
+                <!-- :disabled="scope.row.isDelete == 1" -->
                 </template>
             </el-table-column>
             <el-table-column label="标签" show-overflow-tooltip align="center" width="110px">
@@ -68,12 +89,12 @@
                     <el-tag type="danger">{{scope.row.type}}</el-tag>
                 </template>
             </el-table-column>
-            <el-table-column prop="created" width="130px" align="center" label="创建时间">
+            <el-table-column prop="created" width="190px" align="center" label="创建时间">
                 <template slot-scope="scope" >
-                    {{ scope.row.created | date}}
+                    {{ scope.row.created | dateTime}}
                 </template>
             </el-table-column>
-            <el-table-column label="操作" width="200px" align="center">
+            <el-table-column label="操作" width="180px" align="center">
                 <template slot-scope="scope">
                     <el-button
                         type="text"
@@ -86,6 +107,7 @@
                         <router-link :to="{name: 'ArticleEdit', params: {articleId: scope.row.id}}">编辑</router-link>
                     </el-button>
                     <el-button
+                        :disabled="scope.row.isDelete"
                         type="text"
                         class="red"
                         icon="el-icon-delete"
@@ -131,9 +153,12 @@ export default {
         return {
             articles:{},
             tagList: [],
-            selectArticleType: null,
-            selectArticleTag: null,
+            // selectArticleType: null,
+            selectArticleTagId: null,
+            keywords: null,
             name: '',
+            isDelete: null,
+            status: null,
             currentPage: 1,
             total: 0,
             size: 5,
@@ -142,10 +167,13 @@ export default {
     methods: {
         listArticles() {
             const _this = this;
-            this.axios.get("/article/articles",{
+            this.axios.get("/article/admin/articles",{
                 params : {
                     currentPage: this.currentPage,
-                    pageSize: this.size
+                    pageSize: this.size,
+                    tagId: this.selectArticleTagId,
+                    // type: this.selectArticleType,
+                    isDelete: this.isDelete
                 }
             }
             ).then(res =>{
@@ -197,16 +225,48 @@ export default {
             });
         },
         changeTop(article) {
-            let param = new URLSearchParams();
-            param.append("isTop", article.isTop);
-            // this.axios.put("/articles/top/" + article.id, param);
+            this.axios.put("/article/top/" + article.id).then(res => {
+                if (res.data.code == 200) {
+                    this.$notify.success({
+                        title: "成功",
+                        message: res.data.data
+                    });
+                    this.listArticles();
+                } else {
+                    this.$notify.error({
+                        title: "失败",
+                        message: res.data.msg
+                    });
+                }
+            });
         },
-         
+        changeDelete(isDelete){
+            this.isDelete = isDelete;
+        }
     },
     watch:{
         currentPage(now){
-            this.currentPage = now;
-            this.listArticles();
+            this.currentPage = now
+            this.listArticles()
+        },
+        // selectArticleType(){
+        //     this.currentPage = 1
+        //     this.listArticles()
+        // },
+        selectArticleTagId() {
+            this.currentPage = 1
+            this.listArticles()
+        },
+        isDelete(){
+            this.currentPage = 1
+            this.listArticles()
+        }
+    },
+    computed: {
+        isActive() {
+            return function(status) {
+                return this.activeStatus == status ? "active-status" : "status";
+            };
         }
     }
     
@@ -241,5 +301,61 @@ export default {
     margin: auto;
     width: 40px;
     height: 40px;
+}
+
+.article-status-menu {
+  font-size: 14px;
+  margin-top: 40px;
+  color: #999;
+}
+.article-status-menu span {
+  margin-right: 24px;
+}
+.status {
+  cursor: pointer;
+}
+.active-status {
+  cursor: pointer;
+  color: #333;
+  font-weight: bold;
+}
+.article-cover {
+  position: relative;
+  width: 100%;
+  height: 90px;
+  border-radius: 4px;
+}
+.article-cover::after {
+  content: "";
+  background: rgba(0, 0, 0, 0.3);
+  position: absolute;
+  top: 0;
+  bottom: 0;
+  left: 0;
+  right: 0;
+}
+.article-status-icon {
+  color: #fff;
+  font-size: 1.5rem;
+  position: absolute;
+  right: 1rem;
+  bottom: 1.4rem;
+}
+
+.review-menu {
+  font-size: 14px;
+  margin-top: 15px;
+  color: #999;
+}
+.review-menu span {
+  margin-right: 24px;
+}
+.review {
+  cursor: pointer;
+}
+.active-review {
+  cursor: pointer;
+  color: #333;
+  font-weight: bold;
 }
 </style>

@@ -41,7 +41,7 @@
       </el-button>
       <!-- 数据筛选 -->
       <div style="margin-left:auto" class="handle-input mr10" align="right" >
-        <el-select
+        <!-- <el-select
           v-model="type"
           placeholder="请选择来源"
           size="small"
@@ -53,7 +53,7 @@
             :label="item.label"
             :value="item.value"
           />
-        </el-select>
+        </el-select> -->
         <el-input
           v-model="keywords"
           prefix-icon="el-icon-search"
@@ -128,12 +128,12 @@
       <el-table-column
         prop="createTime"
         label="评论时间"
-        width="150"
+        width="160px"
         align="center"
       >
         <template slot-scope="scope">
           <i class="el-icon-time" style="margin-right:5px" />
-          {{ scope.row.createTime | date }}
+          {{ scope.row.createTime | dateTime }}
         </template>
       </el-table-column>
       <!-- 状态 -->
@@ -211,19 +211,19 @@ export default {
     return {
       loading: true,
       remove: false,
-      options: [
-        {
-          value: 1,
-          label: "文章"
-        },
-        {
-          value: 2,
-          label: "友链"
-        }
-      ],
+      // options: [
+      //   {
+      //     value: 1,
+      //     label: "文章"
+      //   },
+      //   {
+      //     value: 2,
+      //     label: "友链"
+      //   }
+      // ],
       commentList: [],
       commentIdList: [],
-      type: null,
+      // type: null,
       keywords: null,
       isReview: null,
       current: 1,
@@ -239,8 +239,8 @@ export default {
             currentPage: this.current,
             pageSize: this.size,
             keywords: this.keywords,
-            type: this.type,
-            isReview: this.isReview
+            isReview: this.isReview,
+            type: this.type
           }
         }).then(res => {
         // console.log(res)
@@ -285,7 +285,6 @@ export default {
       this.axios.get("/comments/review/"+id,{
           headers: {
               "Authorization": sessionStorage.getItem("token"),
-              "token": sessionStorage.getItem("token")
           }
         }).then(({ data }) => {
         if (data.code === 200) {
@@ -312,13 +311,12 @@ export default {
       this.axios.delete("/comments/del/"+id,{
         headers: {
             "Authorization": sessionStorage.getItem("token"),
-            "token": sessionStorage.getItem("token")
           }
       }).then(({ data }) => {
         if (data.code==200) {
           this.$notify.success({
             title: "成功",
-            message: data.msg
+            message: data.data
           });
           this.listComments();
         } else {
@@ -337,10 +335,10 @@ export default {
       this.current = 1;
       this.listComments();
     },
-    type() {
-      this.current = 1;
-      this.listComments();
-    }
+    // type() {
+    //   this.current = 1;
+    //   this.listComments();
+    // }
   }
 };
 </script>
