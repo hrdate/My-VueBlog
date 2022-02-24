@@ -53,10 +53,9 @@ export default {
           params: { currentPage: this.current }
         })
         .then(({ data }) => {
+          console.log(data)
           this.archiveList = data.data.records;
-          this.current = data.data.current;
           this.count = data.data.total;
-          this.totalPage = data.data.pages;
         });
     }
   },

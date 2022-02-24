@@ -1,0 +1,68 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.vueblog.mapper.ArticleMapper">
+
+    <resultMap id="articleHomeResultMap" type="com.vueblog.dto.ArticleHomeDTO">
+        <id column="id" property="id"/>
+        <result column="article_cover" property="articleCover"/>
+        <result column="title" property="title"/>
+        <result column="content" property="content"/>
+        <result column="created" property="created"/>
+        <result column="article_type" property="type"/>
+        <result column="is_top" property="isTop"/>
+        <result column="tagId" property="tagId"/>
+        <result column="tagName" property="tagName"/>
+    </resultMap>
+
+    <select id="listArticles" resultMap="articleHomeResultMap">
+        SELECT
+            a.id,
+            article_cover,
+            title,
+            SUBSTR(a.content, 1, 200 ) AS content,
+            a.created,
+            article_type,
+            is_top,
+            a.tagId,
+            tagName
+        FROM
+        (
+        SELECT
+            id,
+            article_cover,
+            title,
+            content,
+            created,
+            article_type,
+            is_top,
+            tagId
+            FROM
+            m_article
+            WHERE is_delete = 0
+            ORDER BY
+                is_top DESC,
+                id DESC
+            limit #{currentPage} , #{pageSize}
+        ) a
+        JOIN m_tag t ON a.tagId = t.id
+        ORDER BY
+            a.is_top DESC,
+            a.id DESC
+    </select>
+
+    <select id="searchArticleByKeywords" resultType="com.vueblog.dto.ArticleSearchDTO">
+    SELECT
+        id,
+        title,
+        article_cover,
+        SUBSTR(content, 1, 200 ) AS content
+    FROM
+        m_article
+    WHERE
+        CONCAT (id,title,content)
+        LIKE CONCAT ('%',#{keyWords},'%')
+    ORDER BY
+        id DESC
+    </select>
+
+</mapper>

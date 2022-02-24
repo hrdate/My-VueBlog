@@ -77,26 +77,17 @@ export default {
     sendCode() {
       const that = this;
       // eslint-disable-next-line no-undef
-      var captcha = new TencentCaptcha(this.config.TENCENT_CAPTCHA, function(
-        res
-      ) {
-        if (res.ret === 0) {
-          //发送邮件
-          that.countDown();
-          that.axios.post("/user/register/emailSend", {
-              params: { email: that.email }
-            })
-            .then(({ data }) => {
-              if (data.flag) {
-                that.$toast({ type: "success", message: data.message });
-              } else {
-                that.$toast({ type: "error", message: data.message });
-              }
-            });
-        }
-      });
-      // 显示验证码
-      captcha.show();
+      //发送邮件
+      that.countDown();
+      // console.log("/user/register/emailSend")
+      that.axios.get("/user/register/emailSend?email="+that.email).then(({ data }) => {
+        // console.log(data)
+          if (data.code == 200) {
+            that.$toast({ type: "success", message: data.msg });
+          } else {
+            that.$toast({ type: "error", message: data.msg });
+          }
+        });
     },
     countDown() {
       this.flag = true;
@@ -125,26 +116,30 @@ export default {
         this.$toast({ type: "error", message: "密码不能少于6位" });
         return false;
       }
-      const user = {
+      var MailCodeVO = {
         email: this.email,
         password: this.password,
         code: this.code
-      };
-      this.axios.post("/user/register/check", user).then(({ data }) => {
-        if (data.flag) {
-          let param = new URLSearchParams();
-          param.append("email", user.email);
-          param.append("password", user.password);
-          this.axios.post("/user/login", param).then(({ data }) => {
+      }
+      // console.log(MailCodeVO)
+      this.axios.post("/user/register/check",MailCodeVO).then(({ data }) => {
+        // console.log(data)
+        if (data.code == 200) {
+          this.axios.post("/user/login",{
+            email: this.email,
+            password: this.password,
+          }).then(({ data }) => {
             this.email = "";
             this.password = "";
             this.$store.commit("login", data.data);
             this.$store.commit("closeModel");
           });
-          this.$toast({ type: "success", message: data.message });
+          this.$toast({ type: "success", message: data.msg });
         } else {
-          this.$toast({ type: "error", message: data.message });
+          this.$toast({ type: "error", message: data.data });
         }
+      }).catch(err => {
+        this.$toast({ type: "error", message: err.response.data.data });
       });
     }
   },

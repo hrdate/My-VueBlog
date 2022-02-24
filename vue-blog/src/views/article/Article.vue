@@ -184,7 +184,7 @@
                       {{ item.title }}
                     </router-link>
                   </div>
-                  <div class="content-time">{{ item.created | date }}</div>
+                  <div class="content-time">{{ item.created | dateTime }}</div>
                 </div>
               </div>
             </div>
@@ -239,7 +239,7 @@ export default {
       const arr = path.split("/");
       const articleId = arr[arr.length - 1];
       this.axios.get("/article/"+ articleId).then(({ data }) => {
-        console.log(data)
+        // console.log(data)
         document.title = data.data.title;
         //将markdown转换为Html
         this.markdownToHtml(data.data);
@@ -291,6 +291,7 @@ export default {
       this.axios.get("/comments/article/"+articleId,{
         currentPage: 1,
       }).then(({ data }) => {
+        // console.log(data)
           this.commentList = data.data.records;
           this.count = data.data.total;
         });
@@ -317,8 +318,9 @@ export default {
       this.axios.get("/article/like/"+articleId,{
         headers: {"Authorization": sessionStorage.getItem("token")}
       }).then( res  => {
-        console.log("/article/like/"+this.userId+"/"+articleId)
-        console.log(res)
+        // console.log("/article/like/"+this.userId+"/"+articleId)
+        // console.log(res)
+          res.data.data;
           if (this.$store.state.articleLikeSet.indexOf(this.article.id) != -1){
             _this.$set(_this.article, "articleLike", _this.article.articleLike - 1);
           }else {
@@ -417,7 +419,7 @@ export default {
   left: 0;
   right: 0;
   height: 100%;
-   background: url("../../assets/img/bokeyuan_1.jpg") center center no-repeat;
+  background: url("../../assets/img/bokeyuan_1.jpg") center center no-repeat;
   /* background-color: #49b1f5; */
   background-attachment: fixed;
   text-align: center;

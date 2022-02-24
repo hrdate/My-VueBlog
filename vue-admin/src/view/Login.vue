@@ -2,7 +2,7 @@
     <div class="login-wrap">
         <div class="ms-login">
             <div class="ms-title">后台管理系统</div>
-            <el-form :model="param" :rules="rules" ref="login" label-width="0px" class="ms-content">
+            <el-form status-icon :model="param" :rules="rules" ref="ruleForm" label-width="0px" class="ms-content">
                 <el-form-item prop="userName">
                     <el-input v-model="param.userName" placeholder="userName">
                         <el-button slot="prepend" icon="el-icon-lx-people"></el-button>
@@ -27,7 +27,7 @@
 </template>
 
 <script>
-import {login} from "../api/index";
+import TCaptcha from "../assets/js/TCaptcha.js"
 export default {
     name: "Login",
     data: function() {
@@ -45,29 +45,38 @@ export default {
     methods: {
         submitForm() {
             //$refs引用函数，validate进行表单检验
-            this.$refs.login.validate(valid => {
+            this.$refs.ruleForm.validate(valid => {
                 if (valid) {
                     // 提交逻辑
                     const _this = this;
-                    this.axios.post(`/user/login`,this.param).then(res =>{
-                        console.log(res)
-                        this.$message.success('登录成功');
-                        const token = res.headers['authorization'];
-                        _this.$store.commit('login', res.data.data);
-                        _this.$store.commit('SET_TOKEN', token);
-                        _this.$store.commit("SET_USERINFO", res.data.data)
-                        this.$message.success('成功登录');
-                        _this.$router.push("/")
-                    }).catch(err =>{
-                        this.$message.error('请输入账号和密码');
-                    })
-                }else {
-                    this.$message.error('请输入账号和密码');
-                    console.log('error submit!!');
-                    return false;
-                }
+                    // // eslint-disable-next-line no-undef
+                    // var captcha = new TencentCaptcha("2081116354",function(res) {
+                    //     if (res.ret === 0) {
+                            this.axios.post(`/user/login`,this.param).then(res =>{
+                                this.$message.success('登录成功');
+                                const token = res.headers['authorization'];
+                                _this.$store.commit('login', res.data.data);
+                                _this.$store.commit('SET_TOKEN', token);
+                                _this.$store.commit("SET_USERINFO", res.data.data)
+                                this.$message.success('成功登录');
+                                _this.$router.push("/")
+                            }).catch(err =>{
+                                this.$message.error('请输入账号和密码');
+                            })
+                        }else {
+                            this.$message.error('请输入账号和密码');
+                            return false;
+                        }
+                    // });
+                // }
             });
+            this.getTagDTOList();
         },
+        getTagDTOList(){
+            this.axios.get(`/tag/tags`).then( res  => {
+                this.$store.state.tagList = res.data.data
+            });
+        }
     },
 };
 </script>

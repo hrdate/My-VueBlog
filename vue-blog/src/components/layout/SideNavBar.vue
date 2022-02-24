@@ -24,7 +24,7 @@
         </router-link>
       </div>
       <div class="blog-info-data">
-        <router-link to="/tags">
+        <router-link to="/tag">
           <div style="font-size: 0.875rem">标签</div>
           <div style="font-size: 1.125rem">
             {{ this.$store.state.blogInfo.tagCount }}
@@ -46,7 +46,7 @@
         </router-link>
       </div>
       <div class="menus-item">
-        <router-link to="/tags">
+        <router-link to="/tag">
           <i class="iconfont iconbiaoqian" /> 标签
         </router-link>
       </div>

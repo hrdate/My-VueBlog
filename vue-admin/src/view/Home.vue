@@ -49,12 +49,12 @@
             </el-col>
         </el-row>
         <!-- 一周访问量展示 -->
-        <!-- <el-card style="margin-top:1.25rem">
-            <div class="e-title">一周访问量</div>
+        <el-card style="margin-top:1.25rem">
+            <!-- <div class="e-title">一周访问量</div>
             <div style="height:350px">
                 <v-chart :options="viewCount" v-loading="loading" />
-            </div>
-        </el-card> -->
+            </div> -->
+        </el-card>
         <el-card shadow="hover" style="height:403px;">
             <div slot="header" class="clearfix">
                 <span>用户访问量：{{blogInfo.viewsCount}}</span>
@@ -64,14 +64,13 @@
             </div>
         </el-card>
     </el-row>
-    <el-row :gutter="20" style="margin-top:1.25rem">
+    <el-row :gutter="20" style="margin-top:1.5rem;height:403px;">
       <!-- 文章浏览量排行 -->
       <el-col :span="16">
-        <el-card>
-          <div class="e-title">文章浏览量排行</div>
-          <div style="height:350px">
-            <v-chart :options="ariticleRank" v-loading="loading" />
-          </div>
+        <el-card shadow="hover">
+            <div class="schart-box" >
+                <schart class="schart" canvasId="bar" :options="ariticleRankChart"></schart>
+            </div>
         </el-card>
       </el-col>
       <!-- 文章标签统计 -->
@@ -89,22 +88,21 @@
 </template>
 
 <script>
+
 import Schart from 'vue-schart';
-import bus from '../components/bus';
 import TagCloud from '../components/tagCloud.vue';
 export default {
     userName: 'Home',
     created() {
         this.getBlogInfo();
-        // this.handleListener();
-        // this.changeDate();
         this.getTagDTOList();
+        this.getAriticleRank();
     },
     data() {
         return {
             userName: this.$store.state.userName,
             email: this.$store.state.email,
-            loading: false,
+            loading: true,
             tagDTOList: [],
             blogInfo: {
                 about: '',
@@ -134,30 +132,30 @@ export default {
             },
             viewCount: {
                 tooltip: {
-                trigger: "axis",
-                axisPointer: {
-                    type: "cross"
-                }
+                    trigger: "axis",
+                    axisPointer: {
+                        type: "cross"
+                    }
                 },
                 color: ["#3888fa"],
                 legend: {
-                data: ["访问量"]
+                    data: ["访问量"]
                 },
                 grid: {
-                left: "0%",
-                right: "0%",
-                bottom: "0%",
-                top: "10%",
-                containLabel: true
+                    left: "0%",
+                    right: "0%",
+                    bottom: "0%",
+                    top: "10%",
+                    containLabel: true
                 },
                 xAxis: {
-                data: [],
-                axisLine: {
-                    lineStyle: {
-                    // 设置x轴颜色
-                    color: "#666"
+                    data: [],
+                    axisLine: {
+                        lineStyle: {
+                        // 设置x轴颜色
+                        color: "#666"
+                        }
                     }
-                }
                 },
                 yAxis: {
                 axisLine: {
@@ -170,12 +168,27 @@ export default {
                 series: [
                     {
                         name: "访问量",
-                        type: "line",
+                        type: "bar",
                         data: [],
                         smooth: true
                     }
                 ]
             },
+
+            ariticleRankChart:{
+                type: 'bar',
+                title: {
+                    text: '文章浏览量排行'
+                },
+                bgColor: '#fbfbfb',
+                labels: [],
+                datasets: [
+                    {
+                        label: '文章标题',
+                        data: []
+                    }
+                ]
+            }
         };
     },
     components: {
@@ -187,26 +200,12 @@ export default {
             return this.userName === 'admin' ? '超级管理员' : '普通用户';
         }
     },
-    // activated() {
-    //     this.handleListener();
-    // },
-    // deactivated() {
-    //     window.removeEventListener('resize', this.renderChart);
-    //     bus.$off('collapse', this.handleBus);
-    // },
     methods: {
         getBlogInfo() {
             var _this = this;
             this.axios.get("/admin/bloginfo").then(({ data }) => {
                 _this.blogInfo = data.data;
                 _this.$store.commit("checkBlogInfo", data.data);
-            });
-        },
-        changeDate() {
-            const now = new Date().getTime();
-            this.data.forEach((item, index) => {
-                const date = new Date(now - (6 - index) * 86400000);
-                item.userName = `${date.getFullYear()}/${date.getMonth() + 1}/${date.getDate()}`;
             });
         },
         getTagDTOList(){
@@ -217,22 +216,24 @@ export default {
                     "name": item.tagName
                 });
             });
+            
+        },
+        getAriticleRank(){
+            var _this = this;
+            this.axios.get("/article/admin/articleRankList").then(({ data }) => {
+                var res = data.data;
+                res.forEach(item => {
+                    _this.ariticleRankChart.datasets[0].data.push(item.viewsCount)
+                    if(item.title.length > 7){
+                        item.title = item.title.substring(0,10) + '...'
+                    }
+                    _this.ariticleRankChart.labels.push(item.title)
+                    
+                });
+            });
             this.loading = false;
-        }
-        // handleListener() {
-        //     bus.$on('collapse', this.handleBus);
-        //     // 调用renderChart方法对图表进行重新渲染
-        //     window.addEventListener('resize', this.renderChart);
-        // },
-        // handleBus(msg) {
-        //     setTimeout(() => {
-        //         this.renderChart();
-        //     }, 200);
-        // },
-        // renderChart() {
-        //     this.$refs.bar.renderChart();
-        //     this.$refs.line.renderChart();
-        // }
+        },
+        
     }
 };
 </script>

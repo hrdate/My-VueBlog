@@ -103,8 +103,8 @@
         width="120"
       >
         <template slot-scope="scope">
-          <span v-if="scope.row.replyNickname">
-            {{ scope.row.replyNickname }}
+          <span v-if="scope.row.replyUserName">
+            {{ scope.row.replyUserName }}
           </span>
           <span v-else>无</span>
         </template>
@@ -126,14 +126,14 @@
       </el-table-column>
       <!-- 评论时间 -->
       <el-table-column
-        prop="createTime"
+        prop="created"
         label="评论时间"
         width="160px"
         align="center"
       >
         <template slot-scope="scope">
           <i class="el-icon-time" style="margin-right:5px" />
-          {{ scope.row.createTime | dateTime }}
+          {{ scope.row.created | dateTime }}
         </template>
       </el-table-column>
       <!-- 状态 -->
@@ -146,7 +146,7 @@
       <!-- 来源 -->
       <el-table-column label="来源" align="center" width="100">
         <template slot-scope="scope">
-          <el-tag v-if="scope.row.articleId">文章</el-tag>
+          <el-tag v-if="scope.row.articleTitle">文章</el-tag>
           <el-tag v-else type="warning">友链</el-tag>
         </template>
       </el-table-column>
@@ -243,11 +243,9 @@ export default {
             type: this.type
           }
         }).then(res => {
-        // console.log(res)
+          console.log(res)
             _this.commentList = res.data.data.records;
-            _this.current = res.data.data.current;
             _this.total = res.data.data.total;
-            _this.size = res.data.data.size;
             _this.loading=false;
         });
     },

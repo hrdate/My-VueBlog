@@ -52,7 +52,7 @@ export default {
   methods: {
     goTo(articleId) {
       this.$store.state.searchFlag = false;
-      this.$router.push({ path: "/blog/" + articleId });
+      this.$router.push({ path: "/article/" + articleId });
     }
   },
   computed: {
@@ -75,7 +75,10 @@ export default {
   watch: {
     keywords(value) {
       this.flag = (value.trim() != "" ? true : false);
-      this.axios.post("/blog/search",value).then(({ data }) => {
+      this.articleList = [];
+      this.axios.post("/article/search",{
+        keyWords: value
+      }).then(({ data }) => {
           if(data.code == 200){
             this.articleList = data.data;
           }

@@ -79,7 +79,11 @@ export default {
   methods: {
     updataUserInfo() {
       // console.log(this.userInfo)
-      this.axios.post("/user/editInfo", this.userInfo).then(({ data }) => {
+      this.axios.post("/user/editInfo", this.userInfo,{
+        headers: {
+            "Authorization": sessionStorage.getItem("token")
+        }
+      }).then(({ data }) => {
         // console.log(data)
         if (data.code == 200) {
           this.$store.commit("updateUserInfo", this.userInfo);

@@ -58,15 +58,19 @@ export default {
       const that = this;
       // eslint-disable-next-line no-undef
       that.countDown();
-      that.axios.post("/user/register/emailSend", {
-          params: { email: this.email }
+      that.axios.get("/user/register/emailSend", {
+           email: this.email 
         })
         .then(({ data }) => {
+          // console.log("/user/register/emailSend")
+          // console.log(data)
           if (data.code == 200) {
             that.$toast({ type: "success", message: data.msg });
           } else {
             that.$toast({ type: "error", message: data.msg });
           }
+        }).catch(err =>{
+          that.$toast({ type: "error", message: err.response.data.data });
         });
     },
     countDown() {
@@ -99,15 +103,17 @@ export default {
           password: this.password
         }
       }).then(({ data }) => {
-        if (data.flag) {
+        if (data.code == 200) {
           this.$store.commit("saveEmail", this.email);
           this.email = "";
           this.code = "";
           this.$store.commit("closeModel");
-          this.$toast({ type: "success", message: data.message });
+          this.$toast({ type: "success", message: data.msg });
         } else {
-          this.$toast({ type: "error", message: data.message });
+          this.$toast({ type: "error", message: data.msg });
         }
+      }).catch(err =>{
+          this.$toast({ type: "error", message: err.response.data.data });
       });
     }
   },

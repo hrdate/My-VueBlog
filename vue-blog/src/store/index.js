@@ -21,11 +21,13 @@ export default new Vuex.Store({
     webSite: null,
     loginType: null,
     email: null,
-    tagList: null,
+    tagList: [],
     articleLikeSet: [],
     commentLikeSet: [],
     blogInfo: {
       viewsCount: null,
+      articleCount: 0,
+      tagCount: 0
     },
     websiteConfigForm: {
         websiteAvatar: "",

@@ -44,12 +44,12 @@
             @selection-change="selectionChange"
         >
         <!-- 表格列 -->
-        <el-table-column type="selection" width="55" />
+        <el-table-column type="selection" width="40" />
         <el-table-column
             prop="avatar"
             label="链接头像"
             align="center"
-            width="180"
+            width="170"
         >
         <template slot-scope="scope">
             <img :src="scope.row.avatar" width="40" height="40" />
@@ -61,12 +61,12 @@
         <el-table-column
             prop="created"
             label="创建时间"
-            width="140"
+            width="170"
             align="center"
         >
             <template slot-scope="scope">
             <i class="el-icon-time" style="margin-right:5px" />
-            {{ scope.row.created | date }}
+            {{ scope.row.created | dateTime }}
             </template>
         </el-table-column>
         <!-- 列操作 -->

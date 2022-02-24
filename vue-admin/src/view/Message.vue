@@ -74,7 +74,11 @@
         align="center"
         width="150"
       />
-      <el-table-column prop="content" label="留言内容" align="center" />
+      <el-table-column 
+        prop="content" 
+        label="留言内容" 
+        align="center" 
+      />
       <el-table-column
         prop="ipAddress"
         label="ip地址"
@@ -97,11 +101,11 @@
       <el-table-column
         prop="createTime"
         label="留言时间"
-        width="140"
+        width="160"
         align="center"
       >
         <template slot-scope="scope">
-          <i class="el-icon-time" style="margin-right:5px" />
+          <i class="el-icon-time"  style="margin-right:5px" />
           {{ scope.row.created | dateTime }}
         </template>
       </el-table-column>

@@ -78,15 +78,15 @@ export default {
       const that = this;
       // eslint-disable-next-line no-undef
       that.countDown();
-      that.axios.post("/user/register/emailSend", {
-          params: { email: that.email }
-        })
+      that.axios.get("/user/register/emailSend?email="+that.email)
         .then(({ data }) => {
           if (data.code == 200) {
             that.$toast({ type: "success", message: data.msg });
           } else {
             that.$toast({ type: "error", message: data.msg });
           }
+        }).catch(err =>{
+          this.$message.error(err.response.data.data);
         });
     },
     countDown() {
@@ -112,8 +112,8 @@ export default {
         this.$toast({ type: "error", message: "请输入6位验证码" });
         return false;
       }
-      if (this.password.trim().length < 6) {
-        this.$toast({ type: "error", message: "密码不能少于6位" });
+      if (this.password.trim().length < 5) {
+        this.$toast({ type: "error", message: "密码不能少于5位" });
         return false;
       }
       const user = {
@@ -121,12 +121,14 @@ export default {
         password: this.password,
         code: this.code
       };
-      this.axios.put("/api/users/password", user).then(({ data }) => {
-        if (data.flag) {
-          this.$toast({ type: "success", message: data.message });
+      this.axios.put("/user/editPassword", user).then(({ data }) => {
+        if (data.code == 200) {
+          this.$toast({ type: "success", message: data.msg });
         } else {
-          this.$toast({ type: "error", message: data.message });
+          this.$toast({ type: "error", message: data.msg });
         }
+      }).catch(err =>{
+          this.$message.error(err.response.data.data);
       });
     }
   },

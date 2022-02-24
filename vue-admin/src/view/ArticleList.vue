@@ -177,11 +177,8 @@ export default {
                 }
             }
             ).then(res =>{
-                console.log(res)
                 _this.articles = res.data.data.records;
-                _this.currentPage = res.data.data.current;
                 _this.total = res.data.data.total;
-                _this.pageSize = res.data.data.size;
             });
         },
         currentChange(current) {
@@ -207,7 +204,6 @@ export default {
             }).then(() => {
                 _this.$axios.delete(`/article/del/`+articleId, {
                     headers: {
-                        "token": sessionStorage.getItem("token"),
                         "Authorization": sessionStorage.getItem("token")
                     }
                 }).then(res => {

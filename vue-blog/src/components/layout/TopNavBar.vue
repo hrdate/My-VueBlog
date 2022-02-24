@@ -124,7 +124,7 @@ export default {
           "Authorization": sessionStorage.getItem("token")
         }
       }).then(({ data }) => {
-        console.log(data)
+        // console.log(data)
         if (data.code == 200) {
           this.$store.commit("logout");
           Message.success('用户退出成功')

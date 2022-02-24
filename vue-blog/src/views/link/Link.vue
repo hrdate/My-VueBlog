@@ -80,17 +80,16 @@ export default {
       });
     },
     listComments() {
-      this.axios.get("/comments/friendLink",{
-        currentPage: 1,
-      }).then(({ data }) => {
-          console.log("/comments/friendLink")
-          console.log(data)
-          if(data.code === 200){
-            this.commentList = data.data.records;
-            this.count = data.data.total;
-
-          }
-        });
+      // this.axios.get("/comments/friendLink",{
+      //   currentPage: 1,
+      // }).then(({ data }) => {
+      //     // console.log("/comments/friendLink")
+      //     // console.log(data)
+      //     if(data.code === 200){
+      //       this.commentList = data.data.records;
+      //       this.count = data.data.total;
+      //     }
+      //   });
     }
   },
   computed: {

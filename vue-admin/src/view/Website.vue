@@ -185,31 +185,6 @@
               <el-radio :label="1">开启</el-radio>
             </el-radio-group>
           </el-form-item>
-          <el-form-item label="打赏状态">
-            <el-radio-group v-model="websiteConfigForm.isReward">
-              <el-radio :label="0">关闭</el-radio>
-              <el-radio :label="1">开启</el-radio>
-            </el-radio-group>
-          </el-form-item>
-          <el-row style="width:600px" v-show="websiteConfigForm.isReward == 1">
-            <el-col :md="12">
-              <el-form-item label="微信收款码">
-                  <!-- action="/api/admin/config/images" -->
-                <el-upload
-                  class="avatar-uploader"
-                  :show-file-list="false"
-                  :on-success="handleWeiXinSuccess"
-                >
-                  <img
-                    v-if="websiteConfigForm.weiXinQRCode"
-                    :src="websiteConfigForm.weiXinQRCode"
-                    class="avatar"
-                  />
-                  <i v-else class="el-icon-plus avatar-uploader-icon" />
-                </el-upload>
-              </el-form-item>
-            </el-col>
-          </el-row>
           <el-form-item label="聊天室状态">
             <el-radio-group v-model="websiteConfigForm.isChatRoom">
               <el-radio :label="0">关闭</el-radio>
@@ -291,8 +266,7 @@ export default {
   methods: {
     getWebsiteConfig() {
       this.axios.get("/admin/blogInfo/config").then(res => {
-        console.log(res);
-        this.websiteConfigForm = JSON.parse(res.data.data[0].config);
+        this.websiteConfigForm = JSON.parse(res.data.data);
       });
     },
     handleClick(tab) {

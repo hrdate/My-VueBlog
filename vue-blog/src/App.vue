@@ -3,7 +3,7 @@
     <!-- 导航栏 -->
     <TopNavBar></TopNavBar>
     <!-- 侧边导航栏 -->
-    <!-- <SideNavBar></SideNavBar> -->
+    <SideNavBar></SideNavBar>
     <!-- 内容 -->
     <v-content>
       <router-view :key="$route.fullPath" />
@@ -32,7 +32,7 @@
 
 <script>
 import TopNavBar from "./components/layout/TopNavBar";
-// import SideNavBar from "./components/layout/SideNavBar";
+import SideNavBar from "./components/layout/SideNavBar";
 import Footer from "./components/layout/Footer";
 import BackTop from "./components/BackTop";
 import searchModel from "./components/model/SearchModel";
@@ -45,15 +45,15 @@ import Player from "./components/zw-player/player.vue";
 export default {
   created() {
     // 获取博客信息
-    this.getBlogInfo()
+    // this.getBlogInfo()
     // 上传访客信息
-    // this.axios.post("/api/report");
+    this.axios.post("/report");
     // this.$state.loaded();
   },
   components: {
     TopNavBar,
     Player,
-    // SideNavBar,
+    SideNavBar,
     Footer,
     BackTop,
     searchModel,

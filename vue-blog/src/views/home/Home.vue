@@ -23,7 +23,7 @@
           />
           <a
             target="_blank"
-            href="https://gitee.com/diloveyu"
+            :href="websiteConfigForm.gitee"
             class="iconfont icongitee-fill-round"
           />
         </div>
@@ -51,17 +51,9 @@
                 class="on-hover" width="100%" height="100%"
                 :src="item.articleCover"
               />
-              <v-img v-if="item.id%3==1"
+              <v-img v-else
                 class="on-hover" width="100%" height="100%"
-                src="../../assets/img/QuAn_1.jpg"
-              />
-              <v-img v-if="item.id%3==2"
-                class="on-hover" width="100%" height="100%"
-                src="../../assets/img/QuAn_2.jpg"
-              />
-              <v-img v-if="item.id%3==0"
-                class="on-hover" width="100%" height="100%"
-                src="../../assets/img/pixiv_1.jpg"
+                src="https://diloveyu.gitee.io/image-cloud/vueBlog/artcileCover_2-11.jpg"
               />
             </router-link>
           </div>
@@ -82,7 +74,7 @@
               </span>
               <!-- 发表时间 -->
               <v-icon size="14">mdi-calendar-month-outline</v-icon>
-              {{ item.created | date }}
+              {{ item.created | dateTime }}
               <span class="separator">|</span>
               <!-- 文章分类 -->
               <v-icon size="14">mdi-inbox-full</v-icon>
@@ -94,7 +86,7 @@
                 :to="'/tag/' + item.tagId"
                 class="mr-1"
               >
-                <v-icon size="14">mdi-tag-multiple</v-icon>{{ tagList[ item.tagId-1 ].tagName }}
+                <v-icon size="14">mdi-tag-multiple</v-icon>{{ item.tagName }}
               </router-link>
             </div>
             <!-- 文章内容 -->
@@ -103,20 +95,23 @@
             </div>
           </div>
         </v-card>
+        <!-- 加载按钮 -->
+        <div class="load-wrapper">
+          <v-btn outlined v-if="articleList.length < total" @click="infiniteHandler">
+            加载更多...
+          </v-btn>
+        </div>
         <!-- 无限加载-->
         <!-- <infinite-loading @infinite="infiniteHandler">
           <div slot="no-more" />
         </infinite-loading>  -->
-        <infinite-loading >
-          <div slot="no-more" />
-        </infinite-loading> 
         <!-- 分页按钮 -->
-      <v-pagination
+      <!-- <v-pagination
         color="#00C4B6"
         v-model="current"
         :length="totalPage"
         total-visible="5"
-      />
+      /> -->
       </v-col>
       <!-- 博主信息 -->
       <v-col md="3" cols="12" class="d-md-block d-none">
@@ -215,9 +210,9 @@
 import EasyTyper from "easy-typer-js";
 export default {
   created() {
+    this.getBlogInfo();
     this.init();
     this.timer = setInterval(this.runTime, 1000);
-    this.getBlogInfo();
   },
   data: function() {
     return {
@@ -313,13 +308,19 @@ export default {
       this.time = str;
     },
     getBlogInfo() {
-      this.blogInfo = this.$store.state.blogInfo
-      this.websiteConfigForm = this.$store.state.websiteConfigForm
+      this.axios.get("/bloginfo").then(({ data }) => {
+        if(data.code == 200){
+          this.$store.commit("checkBlogInfo", data.data)
+          this.blogInfo = this.$store.state.blogInfo
+          this.total = this.blogInfo.articleCount
+          this.websiteConfigForm = this.$store.state.websiteConfigForm
+        }
+      });
       this.infiniteHandler();
       this.loadTagList();
     },
     infiniteHandler() {
-      let that = this;  
+      var that = this;  
       let md = require("markdown-it")();
       this.axios.get("/article/articles", {
           params: {
@@ -328,36 +329,36 @@ export default {
           }
         })
         .then(({ data }) => {
-          that.total = data.data.total;
-          that.totalPage = data.data.pages;
+
           // 去除markdown标签
-          data.data.records.forEach(item => {
+          data.data.forEach(item => {
             item.content = md
               .render(item.content)
               .replace(/<\/?[^>]*>/g, "")
               .replace(/[|]*\n/, "")
               .replace(/&npsp;/gi, "");
           });
-          that.articleList = data.data.records;
-          that.current = data.data.current;
+          that.articleList.push(...data.data);
+          that.current = that.current + 1;
           that.$state.loaded();
         }
       );
     },
     loadTagList(){
       this.axios.get("/tag/tags").then(({ data }) => {
-            if(data.code==200){
-              this.tagList = data.data;
-              this.tagCount = this.tagList.length;
+            if(data.code == 200){
+              this.tagList = data.data
+              this.tagCount = this.tagList.length
+              this.$store.state.blogInfo.tagCount = this.tagCount
               this.$store.commit("saveTagList",data.data)
             }
         });
     },
   },
   watch : {
-    current(){
-      this.infiniteHandler();
-    }
+    // current(){
+    //   this.infiniteHandler();
+    // }
   },
   computed: {
     isRight() {
@@ -416,11 +417,11 @@ export default {
   margin: 6px 0 -6px;
 }
 .left-radius {
-  border-radius: 8px 0 0 8px !important;
+  border-radius: 10px 0 0 10px !important;
   order: 0;
 }
 .right-radius {
-  border-radius: 0 8px 8px 0 !important;
+  border-radius: 0 10px 10px 0 !important;
   order: 1;
 }
 .article-wrapper {
@@ -602,5 +603,16 @@ export default {
   50% {
     transform: scale(1.2);
   }
+}
+
+.load-wrapper {
+  margin-top: 10px;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+.load-wrapper button {
+  background-color: #49b1f5;
+  color: #fff;
 }
 </style>

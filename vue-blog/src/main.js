@@ -27,7 +27,6 @@ import "nprogress/nprogress.css";
 
 //网络请求前缀
 axios.defaults.baseURL = "http://127.0.0.1:6515";
-// axios.defaults.baseURL = "http://101.33.203.52:6515";
 
 Vue.prototype.config = config;
 Vue.config.productionTip = false;
@@ -36,6 +35,7 @@ Vue.use(Share);
 Vue.use(ElementUI, {
   size: 'small'
 });
+
 Vue.use(vueBaberrage);
 Vue.use(InfiniteLoading);
 // axios.defaults.headers['Content-Type'] = 'application/x-www-form-urlencoded'
@@ -46,6 +46,10 @@ Vue.use(Toast);
 
 Vue.filter("date", function(value) {
   return moment(value).format("YYYY-MM-DD");
+});
+
+Vue.filter("dateTime", function(value, formatStr = "YYYY-MM-DD hh:mm:ss") {
+  return moment(value).format(formatStr);
 });
 
 Vue.filter("hour", function(value) {

@@ -8,15 +8,32 @@ import 'element-ui/lib/theme-chalk/index.css';
 Vue.use(ElementUI, {
     size: 'small'
 });
+//图形
+import ECharts from "vue-echarts";
+import echarts from 'echarts'
+import "echarts/lib/chart/line";
+import "echarts/lib/chart/pie";
+import "echarts/lib/chart/bar";
+import "echarts/lib/chart/map";
+import "echarts/lib/component/tooltip";
+import "echarts/lib/component/legend";
+import "echarts/lib/component/title";
+import Schart from 'vue-schart';
+Vue.use(Schart)
+// import VCharts from 'v-charts'
+//引入基本模板
+Vue.prototype.$echarts = echarts
+Vue.component("v-chart", ECharts)
+// Vue.use(VCharts)
 //makerdown文本编辑器
 import mavonEditor  from 'mavon-editor'
 Vue.use(mavonEditor);
 import 'mavon-editor/dist/css/index.css'
 import './assets/css/icon.css';
 import 'babel-polyfill';
-//图形
-// import ECharts from "vue-echarts";
-// Vue.use(ECharts)
+//
+import VueCompositionAPI from '@vue/composition-api'
+Vue.use(VueCompositionAPI)
 //请求
 import axios from 'axios';
 Vue.use(VueAxios, axios);
@@ -26,14 +43,20 @@ import moment from "moment";
 //加载进度条
 import NProgress from 'nprogress'
 import 'nprogress/nprogress.css'
+NProgress.configure({
+    easing: "ease", // 动画方式
+    speed: 500, // 递增进度条的速度
+    showSpinner: false, // 是否显示加载ico
+    trickleSpeed: 200, // 自动递增间隔
+    minimum: 0.3 // 初始化时的最小百分比
+});
 //首页标签展示
 // import tagCloud from 'v-tag-cloud'
 // Vue.use(tagCloud)
 import tagCloud from "./components/tag-cloud";
 Vue.use(tagCloud);
 
-// axios.defaults.baseURL = "http://127.0.0.1:6515";
-axios.defaults.baseURL = "http://101.33.203.52:6515";
+axios.defaults.baseURL = "http://127.0.0.1:6525";
 axios.defaults.headers.post["Content-Type"] = "application/json";
 
 // 阻止启动生产消息

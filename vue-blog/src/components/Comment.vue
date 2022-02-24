@@ -58,7 +58,8 @@
       >
         <!-- 头像 -->
         <v-avatar size="40" class="comment-avatar">
-          <img :src="item.avatar" />
+          <img v-if="item.avatar" :src="item.avatar" />
+          <img v-else src="https://static.talkxj.com/photos/0bca52afdb2b9998132355d716390c9f.png">
         </v-avatar>
         <div class="comment-meta">
           <!-- 用户名 -->
@@ -76,11 +77,11 @@
             <!-- 发表时间 -->
             <span style="margin-right:10px">{{ item.created | date }}</span>
             <!-- 点赞 -->
-            <span
+            <!-- <span
               :class="isLike(item.id) + ' iconfont icondianzan'"
               @click="like(item)"
             />
-            <span v-show="item.likeCount > 0"> {{ item.likeCount }}</span>
+            <span v-show="item.likeCount > 0"> {{ item.likeCount }}</span> -->
             <!-- 回复 -->
             <span class="reply-btn" @click="replyComment(index, item)">
               回复
@@ -91,12 +92,14 @@
           <!-- 回复人 -->
           <div
             style="display:flex"
+            :v-model="item.replyDTOList"
             v-for="reply of item.replyDTOList"
             :key="reply.id"
           >
             <!-- 头像 -->
             <v-avatar size="36" class="comment-avatar">
-              <img :src="reply.avatar" />
+              <img v-if="reply.avatar" :src="reply.avatar" />
+              <img v-else src="https://static.talkxj.com/photos/0bca52afdb2b9998132355d716390c9f.png">
             </v-avatar>
             <div class="reply-meta">
               <!-- 用户名 -->
@@ -111,14 +114,14 @@
               <div class="comment-info">
                 <!-- 发表时间 -->
                 <span style="margin-right:10px">
-                  {{ reply.created | date }}
+                  {{ reply.created | dateTime }}
                 </span>
                 <!-- 点赞 -->
-                <span
+                <!-- <span
                   :class="isLike(reply.id) + ' iconfont icondianzan'"
                   @click="like(reply)"
-                />
-                <span v-show="reply.likeCount > 0"> {{ reply.likeCount }}</span>
+                /> -->
+                <!-- <span v-show="reply.likeCount > 0"> {{ reply.likeCount }}</span> -->
                 <!-- 回复 -->
                 <span class="reply-btn" @click="replyComment(index, reply)">
                   回复
@@ -127,19 +130,18 @@
               <!-- 回复内容 -->
               <p class="comment-content">
                 <!-- 回复用户名 -->
-                <template v-if="reply.replyId != item.userId">
-                  <span v-if="!reply.replyWebSite" class="ml-1">
-                    @{{ reply.replyNickname }}
-                  </span>
+                <!-- <template v-if="reply.userId != item.userId"> -->
+                <template>
+                  <!-- <span  class="ml-1">
+                    @{{ reply.userName }}
+                  </span> -->
                   <a
-                    v-else
-                    :href="reply.replyWebSite"
                     target="_blank"
                     class="comment-userName ml-1"
                   >
-                    @{{ reply.replyNickname }}
+                    @{{ reply.userName }}
                   </a>
-                  ，
+                  ：
                 </template>
                 <span v-html="reply.content" />
               </p>
@@ -149,7 +151,7 @@
           <div
             class="mb-3"
             style="font-size:0.75rem;color:#6d757a"
-            v-show="item.replyCount > 3"
+            v-show="item.replyCount > 0"
             ref="check"
           >
             共
@@ -230,9 +232,10 @@ export default {
         item.$el.style.display = "none";
       });
       //传值给回复框
-      this.$refs.reply[index].content = "";
+      this.$refs.reply[index].commentContent = "";
       this.$refs.reply[index].userName = item.userName;
-      this.$refs.reply[index].replyId = item.userId;
+      this.$refs.reply[index].email = item.email;
+      this.$refs.reply[index].replyUserId = item.userId;
       this.$refs.reply[index].parentId = this.commentList[index].id;
       this.$refs.reply[index].chooseEmoji = false;
       this.$refs.reply[index].index = index;
@@ -242,12 +245,15 @@ export default {
       this.content += key;
     },
     checkReplies(index, item) {
-      this.axios.get("/comments/replies/" + item.id, {
+      // console.log("checkReplies评论回复:"+this.commentList[index].id)
+      this.axios.get("/comments/reply/" + item.id, {
           params: { currentPage: 1 }
         })
         .then(({ data }) => {
-          this.$refs.check[index].style.display = "none";
-          item.replyDTOList = data.data;
+          // console.log(data)
+          this.commentList[index].replyDTOList = data.data.records
+          // console.log(this.commentList)
+          this.$refs.check[index].style.display = "none"
           //超过1页才显示分页
           if (Math.ceil(item.replyCount / 5) > 1) {
             this.$refs.paging[index].style.display = "flex";
@@ -256,12 +262,12 @@ export default {
     },
     changeReplyCurrent(current, index, commentId) {
       //查看下一页回复
-      this.axios
-        .get("/comments/replies/" + commentId, {
+      this.axios.get("/comments/reply/" + commentId, {
           params: { currentPage: current }
         })
         .then(({ data }) => {
-          this.commentList[index].replyDTOList = data.data;
+          this.current = data.data.current
+          this.commentList[index].replyDTOList = data.data.records;
         });
     },
     listComments() {
@@ -273,7 +279,6 @@ export default {
           params: { currentPage: this.current }
         }).then(({ data }) => {
             this.commentList.push(...data.data.records);
-            console.log("currentPage:"+this.current)
         });
       }else {
         const arr = path.split("/");
@@ -283,7 +288,7 @@ export default {
           })
           .then(({ data }) => {
             this.commentList.push(...data.data.records);
-            console.log("currentPage:"+this.current)
+            // console.log("currentPage:"+this.current)
           });
       }
     },
@@ -359,12 +364,14 @@ export default {
       });
     },
     reloadReply(index) {
-      this.axios.get("/comments/replies/" + this.commentList[index].id, {
+      // console.log("reloadReply评论回复:"+this.commentList[index].id)
+      this.axios.get("/comments/reply/" + this.commentList[index].id, {
           params: {
-            current: this.$refs.page[index].current
+            currentPage: this.$refs.page[index].current
           }
         })
         .then(({ data }) => {
+          // console.log(data);
           this.commentList[index].replyCount++;
           //回复大于5条展示分页
           if (this.commentList[index].replyCount > 5) {
@@ -372,7 +379,7 @@ export default {
           }
           this.$refs.check[index].style.display = "none";
           this.$refs.reply[index].$el.style.display = "none";
-          this.commentList[index].replyDTOList = data.data;
+          this.commentList[index].replyDTOList = data.data.records;
         });
     }
   },

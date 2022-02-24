@@ -8,16 +8,11 @@
 
 export default{
     created(){
-
-        this.loadTags();
+        // 上传访客信息
+        this.axios.post("/report");
     },
     methods: {
-        loadTags(){
-            const _this = this;  
-            this.axios.get(`/tag/tags`).then( res  => {
-                _this.$store.state.tagList = res.data.data
-            });
-        }
+        
     }
 }
 </script>

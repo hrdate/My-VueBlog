@@ -102,7 +102,7 @@ export default {
           password : this.password
         }
       ).then(res => {
-        console.log(res)
+        // console.log(res)
         if (res.data.code === 200) {
           that.email = "";
           that.password = "";
@@ -112,10 +112,10 @@ export default {
           that.$store.commit("token",token);
           this.$message.success('用户登录成功');
         } else {
-          this.$message.error('用户登录失败');
+          this.$message.error(res.data.data);
         }
-      }).catch(({err}) =>{
-        this.$message.error(err.msg);
+      }).catch(err =>{
+        this.$message.error(err.response.data.data);
       });
     },
     qqLogin() {

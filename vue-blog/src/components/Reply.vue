@@ -2,7 +2,7 @@
   <div class="reply-input-wrapper" style="display: none" ref="reply">
     <textarea
       class="comment-textarea"
-      :placeholder="'回复 @' + nickname + '：'"
+      :placeholder="'回复 @' + userName + '：'"
       auto-grow
       dense
       v-model="commentContent"
@@ -39,8 +39,9 @@ export default {
     return {
       index: 0,
       chooseEmoji: false,
-      nickname: "",
-      replyId: null,
+      userName: "",
+      email: "",
+      replyUserId: null,
       parentId: null,
       commentContent: ""
     };
@@ -72,7 +73,10 @@ export default {
       const arr = path.split("/");
       var comment = {
         articleId: arr[2],
-        replyId: this.replyId,
+        userId: this.$store.state.userId,
+        userName: this.$store.state.userName,
+        email: this.$store.state.email,
+        replyUserId: this.replyUserId,
         parentId: this.parentId,
         content: this.commentContent
       };
@@ -80,7 +84,6 @@ export default {
       this.axios.post("/comments/edit", comment,{
         headers: {
               "Authorization": sessionStorage.getItem("token"),
-              "token": sessionStorage.getItem("token"),
           }
       }).then(({ data }) => {
         if (data.code == 200) {

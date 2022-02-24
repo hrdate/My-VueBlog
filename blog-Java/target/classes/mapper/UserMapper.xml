@@ -1,0 +1,15 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.vueblog.mapper.UserMapper">
+    <update id="updateUserInfo">
+        update m_user set userName = #{userName},webSite = #{webSite},introduce = #{introduce} where email = #{email}
+    </update>
+    <select id="getOneById" resultType="com.vueblog.entity.User">
+        select userName,avatar,email,introduce,webSite from m_user where id = ${id}
+    </select>
+
+
+    <select id="getByEmail" resultType="com.vueblog.entity.User">
+        select * from m_user where email = #{email}
+    </select>
+</mapper>

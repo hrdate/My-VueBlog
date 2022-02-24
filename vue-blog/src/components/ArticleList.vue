@@ -48,7 +48,7 @@
             </div> -->
             <!-- 文章分类 -->
             <div class="tag-wrapper tag-btn" style="">
-              {{item.type}}
+              {{ item.type }}
             </div>
           </v-card>
         </v-col>
@@ -85,21 +85,22 @@ export default {
   methods: {
     infiniteHandler($state) {
       const path = this.$route.path;
-      console.log(path)
+      // console.log(path)
       const arr = path.split("/");
       const tagId = arr[arr.length - 1];
+      this.name = this.$store.state.tagList[tagId - 1].tagName
       this.axios
         .get("/article/tag/"+tagId, {
         })
         .then(({ data }) => {
-          console.log(data);
           if (data.data.length) {
             this.articleList = data.data;
-            this.name = data.msg;
             $state.loaded();
           } else {
             $state.complete();
           }
+        }).catch(err =>{
+          this.$message.error(err.response.data.data);
         });
     }
   }

@@ -109,8 +109,7 @@ export default {
             if (valid) {
                 _this.axios.post(`/article/edit`,this.editForm,{
                     headers: {
-                        "Authorization": sessionStorage.getItem("token"),
-                        "token": sessionStorage.getItem("token")
+                        "Authorization": sessionStorage.getItem("token")
                     }}).then((res) => {
                     // _this.$alert('操作成功', '提示', {
                     //     confirmButtonText: '确定',
@@ -120,9 +119,8 @@ export default {
                     // });
                     this.$message.success('提交成功');
                     _this.$router.push("/article")
-                }).catch(err=>{
-                    console.log(err)
-                    this.$message.error('提交失败');
+                }).catch(err => {
+                    this.$message.error(err.response.data.data);
                 });
             } else {
                 this.$message.error('错误提交');
