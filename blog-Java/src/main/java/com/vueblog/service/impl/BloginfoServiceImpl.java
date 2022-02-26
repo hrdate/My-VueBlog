@@ -2,9 +2,7 @@ package com.vueblog.service.impl;
 
 import com.vueblog.dto.BloginfoDTO;
 import com.vueblog.entity.Bloginfo;
-import com.vueblog.mapper.ArticleMapper;
 import com.vueblog.mapper.BloginfoMapper;
-import com.vueblog.mapper.UserMapper;
 import com.vueblog.service.*;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
 import com.vueblog.util.BeanCopyUtil;
@@ -54,7 +52,7 @@ public class BloginfoServiceImpl extends ServiceImpl<BloginfoMapper, Bloginfo> i
 
 
     @Override
-    public Bloginfo getBloginfo() {
+    public BloginfoDTO getBloginfo() {
         Bloginfo bloginfo = this.baseMapper.selectById(1);
         Long viewsCount = Long.valueOf((Integer) redisUtils.get(BLOG_VIEWS_COUNT));
         if(viewsCount == null){
@@ -62,7 +60,9 @@ public class BloginfoServiceImpl extends ServiceImpl<BloginfoMapper, Bloginfo> i
             redisUtils.set(BLOG_VIEWS_COUNT,viewsCount + 1);
         }
         redisUtils.increment(BLOG_VIEWS_COUNT,1);
-        return bloginfo;
+        BloginfoDTO bloginfoDTO = BeanCopyUtil.copyObject(bloginfo,BloginfoDTO.class);
+        bloginfoDTO.setArticleCount((long) articleService.count());
+        return bloginfoDTO;
     }
 
     @Override
@@ -99,45 +99,6 @@ public class BloginfoServiceImpl extends ServiceImpl<BloginfoMapper, Bloginfo> i
         return "修改网站信息成功";
     }
 
-    @Override
-    public Boolean articleCountChange(Integer changSize) {
-        Bloginfo bloginfo = this.getById(1);
-        bloginfo.setArticleCount(bloginfo.getArticleCount() + changSize);
-        this.saveOrUpdate(bloginfo);
-        return true;
-    }
-
-    @Override
-    public Boolean userCountChange(Integer changSize) {
-        Bloginfo bloginfo = this.getById(1);
-        bloginfo.setUserCount(bloginfo.getUserCount() + changSize);
-        this.saveOrUpdate(bloginfo);
-        return true;
-    }
-
-    @Override
-    public Boolean tagCountChange(Integer changSize) {
-        Bloginfo bloginfo = this.getById(1);
-        bloginfo.setTagCount(bloginfo.getTagCount() + changSize);
-        this.saveOrUpdate(bloginfo);
-        return true;
-    }
-
-    @Override
-    public Boolean messageCountChange(Integer changSize) {
-        Bloginfo bloginfo = this.getById(1);
-        bloginfo.setMessageCount(bloginfo.getMessageCount() + changSize);
-        this.saveOrUpdate(bloginfo);
-        return true;
-    }
-
-    @Override
-    public Boolean commentsCountChange(Integer changSize) {
-        Bloginfo bloginfo = this.getById(1);
-        bloginfo.setCommentsCount(bloginfo.getCommentsCount() + changSize);
-        this.saveOrUpdate(bloginfo);
-        return true;
-    }
 
     @Override
     public void report() {

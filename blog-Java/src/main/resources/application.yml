@@ -1,6 +1,6 @@
 #配置端口
 server:
-  port: 6525
+  port: 6515
   servlet:
     session:
       timeout: 21600
@@ -44,7 +44,7 @@ spring:
   #邮箱配置
   mail:
     host: smtp.qq.com
-    username: qq邮箱
+    username: 账号
     password: 密码
     default-encoding: UTF-8
     port: 587

@@ -38,30 +38,6 @@ public class Bloginfo implements Serializable {
     @TableField("views_count")
     private Long viewsCount;
 
-    /**
-     * 用户数量
-     */
-    private Long userCount;
-
-    /**
-     * 文章数量
-     */
-    private Long articleCount;
-
-    /**
-     * 标签数量
-     */
-    private Long tagCount;
-
-    /**
-     * 留言数量
-     */
-    private Long messageCount;
-
-    /**
-     * 评论数量
-     */
-    private Long commentsCount;
 
 
     @TableField("config")

@@ -1,4 +1,5 @@
-# hrdate-VueBlog
+### hrdate-My-VueBlog
+
 前后端分离的个人博客，主要采用Vue前/后台+Java的Spring boot框架整合其他...
 
 前端主要采用Vue，Vuex，Webpack，Element-UI，MakerDown
@@ -7,21 +8,22 @@
 
 该练习项目还正在处于待完善阶段，且被个人当作实战练习方案，后续还会继续补补和添加功能
 
+前台页面部分展示：http://www.hrdate.top/ ~~(我还没备案QAQ...)~~
+
 功能：
 
-文章增删改查
-
 - [ ] 文章分享打赏
-
+- [ ] 文章增删改查
 - [ ] 网站/文章浏览量统计
-
-- [ ] 用户注册(邮箱注册，QQ注册)
-
+- [ ] 用户注册(邮箱注册)
 - [ ] 用户文章点赞
-
 - [ ] 用户文章评论
-
 - [ ] 用户/游客弹幕留言
+- [ ] MySQL模糊查询搜索文章~~(有能力可以考虑换成ES)~~
+- [ ] 后台AOP日志操作模块
+- [ ] 后台评论/留言审核功能
+- [ ] 修改网站公告等配置信息
+- [ ] spring scheduled定时任务缓存数据一致性同步
 
 .....
 
@@ -71,6 +73,4 @@
 [MarkerHub](https://juejin.cn/post/6844903823966732302#heading-0)
 
 [风丶宇](https://github.com/X1192176811/blog)
-
-[广科大佬](https://github.com/15626862046/Blog/tree/master/blog-vue)
 

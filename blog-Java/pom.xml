@@ -4,7 +4,7 @@
     <modelVersion>4.0.0</modelVersion>
     <groupId>com.example</groupId>
     <artifactId>vueblog</artifactId>
-    <version>version-2.0</version>
+    <version>version-3.1</version>
     <name>My-vueblog</name>
     <description>Di VueBlog Demo project for Spring Boot</description>
 

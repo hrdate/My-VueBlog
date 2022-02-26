@@ -16,23 +16,13 @@ import java.text.ParseException;
  */
 public interface BloginfoService extends IService<Bloginfo> {
 
-    Bloginfo getBloginfo();
+    BloginfoDTO getBloginfo();
 
     BloginfoDTO adminGetBloginfo();
 
     String adminGetBlogInfoConfig();
 
     String adminUpdateWebsiteConfig(Bloginfo bloginfo) throws ParseException;
-
-    Boolean articleCountChange(Integer changSize);
-
-    Boolean userCountChange(Integer changSize);
-
-    Boolean tagCountChange(Integer changSize);
-
-    Boolean messageCountChange(Integer changSize);
-
-    Boolean commentsCountChange(Integer changSize);
 
     void report();
 }

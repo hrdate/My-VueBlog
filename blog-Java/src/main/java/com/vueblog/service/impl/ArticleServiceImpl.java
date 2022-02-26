@@ -129,10 +129,12 @@ public class ArticleServiceImpl extends ServiceImpl<ArticleMapper, Article> impl
         Long articleViewsCount;
         if(!redisUtils.hHasKey(ARTICLE_VIEWS_COUNT , articleId.toString())){
             articleViewsCount = article.getViewsCount();
-            redisUtils.hset(ARTICLE_VIEWS_COUNT , String.valueOf(articleId),articleViewsCount + 1);
+            redisUtils.hset(ARTICLE_VIEWS_COUNT , String.valueOf(articleId),articleViewsCount);
         }
         ArticleVO articleVO = BeanCopyUtil.copyObject(article,ArticleVO.class);
-        redisUtils.hincr(ARTICLE_VIEWS_COUNT , String.valueOf(articleId),1.0);
+        //更新缓存中文章浏览量+1
+//        redisUtils.hincr(ARTICLE_VIEWS_COUNT , String.valueOf(articleId),1.0);
+        this.updateArticleViewsCount(articleId);
         articleVO.setArticleLike((redisUtils.hHasKey(ARTICLE_LIKE_COUNT, articleId.toString()))
                 ? Long.valueOf((Integer)redisService.hGet(ARTICLE_LIKE_COUNT, articleId.toString())) : 0);
         return  articleVO;
@@ -144,14 +146,15 @@ public class ArticleServiceImpl extends ServiceImpl<ArticleMapper, Article> impl
      * @param articleId 文章id
      */
     @Async
-    public void updateArticleViewsCount(Integer articleId) {
-        // 判断是否第一次访问，增加浏览量
-        Set<Integer> articleSet = (Set<Integer>) Optional.ofNullable(session.getAttribute(ARTICLE_SET)).orElse(new HashSet<>());
+    public void updateArticleViewsCount(Long articleId) {
+        // 通过session判断是否第一次访问，增加浏览量
+        Set<Long> articleSet = (Set<Long>) Optional.ofNullable(session.getAttribute(ARTICLE_SET)).orElse(new HashSet<>());
         if (!articleSet.contains(articleId)) {
             articleSet.add(articleId);
             session.setAttribute(ARTICLE_SET, articleSet);
             // 浏览量+1
-            redisService.zIncr(ARTICLE_VIEWS_COUNT, articleId, 1D);
+//            redisService.zIncr(ARTICLE_VIEWS_COUNT, articleId, 1D);
+            redisUtils.hincr(ARTICLE_VIEWS_COUNT , String.valueOf(articleId),1.0);
         }
     }
 
