@@ -92,7 +92,7 @@ public class Article implements Serializable {
      * 文章标签id
      */
     @TableField(value = "view_count")
-    private long viewsCount;
+    private Long viewsCount;
     /**
      * 文章是否置顶
      */

@@ -10,9 +10,9 @@ spring:
   datasource:
     type: com.zaxxer.hikari.HikariDataSource
     driver-class-name: com.mysql.cj.jdbc.Driver
-    url: jdbc:mysql://127.0.0.1:3306/数据库名?useUnicode=true&useSSL=false&characterEncoding=utf8&serverTimezone=Asia/Shanghai
-    username: 账号
-    password: 密码
+    url: jdbc:mysql://127.0.0.1:3306/vueblog?useUnicode=true&useSSL=false&characterEncoding=utf8&serverTimezone=Asia/Shanghai
+    username: root
+    password: root
     hikari:
       minimum-idle: 5
       # 空闲连接存活最大时间，默认600000（10分钟）
@@ -31,21 +31,24 @@ spring:
 
   #redis配置
   redis:
-    timeout: 5000
     host: 127.0.0.1
     port: 6379
     database: 0
-    password: 密码
-    jedis:
+    password: redis密码
+    timeout: 5000  # 连接超时时间
+    lettuce:
       pool:
-        max-idle: 8
-        min-idle: 0
+        max-active: 1000  # 连接池最大连接数（使用负值表示没有限制）
+        max-idle: 10      # 连接池中的最大空闲连接
+        min-idle: 5       # 连接池中的最小空闲连接
+        #max-wait: -1ms    # 连接池最大阻塞等待时间（使用负值表示没有限制）
+      shutdown-timeout: 6000ms
 
   #邮箱配置
   mail:
     host: smtp.qq.com
-    username: 账号
-    password: 密码
+    username: 邮箱@qq.com
+    password: 邮箱第三方认证密钥
     default-encoding: UTF-8
     port: 587
     properties:
@@ -54,6 +57,45 @@ spring:
       auth: true
       socketFactory:
       class: javax.net.ssl.SSLSocketFactory
+  cache:
+    redis:
+      cache-null-values: false # #是否缓存空值
+
+
+  kafka:
+    bootstrap-servers:
+      - 127.0.0.1:9092
+      - 127.0.0.1:9093
+      - 127.0.0.1:9094
+    producer:
+      retries: 1 # 重试次数
+      acks: 1 # 应答级别 (可选0、1、all/-1)
+      key-serializer: org.apache.kafka.common.serialization.StringSerializer
+      value-serializer: org.apache.kafka.common.serialization.StringSerializer
+      batch-size: 16384 # 批量大小，默认16k
+      buffer-memory: 33554432 # 生产端缓冲区大小,默认32M
+      properties:
+        linger:
+          ms: 100
+    consumer:
+      client-id: defaultConsumer
+      group-id: defaultConsumerGroup
+      key-deserializer: org.apache.kafka.common.serialization.StringDeserializer
+      value-deserializer: org.apache.kafka.common.serialization.StringDeserializer
+      auto-commit-interval: 1000 # 提交offset延时
+      enable-auto-commit: true # 是否自动提交offset
+      auto-offset-reset: earliest # 异常自动重置offest为队列中最小的
+
+      max-poll-records: 50 # 批量消费每次最多消费多少条消息
+
+    listener:
+      missing-topics-fatal: false # 消费端监听的topic不存在时，项目启动会报错(关掉)
+      #type: batch # 设置批量消费
+
+
+
+
+
 
 # 配置MybatisPlus
 mybatis-plus:
@@ -65,10 +107,15 @@ mybatis-plus:
 shiro-redis:
   enabled: true
   redis-manager:
-    host: 127.0.0.1:6379
+    host: 127.0.0.1
+
+
+
+
+
 
 vueblog:
   jwt:
-    secret: 密钥
+    secret: f4e2e52034348f86b67cde581c0f9eb5
     expire: 604800   #7天
     header: Authorization

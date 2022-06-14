@@ -4,7 +4,11 @@ import cn.hutool.core.lang.Assert;
 import cn.hutool.crypto.SecureUtil;
 import com.vueblog.common.lang.Result;
 import com.vueblog.entity.User;
+import com.vueblog.entity.UserRole;
+import com.vueblog.kafka.MQSender;
 import com.vueblog.mapper.UserMapper;
+import com.vueblog.service.RoleService;
+import com.vueblog.service.UserRoleService;
 import com.vueblog.service.UserService;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
 import com.vueblog.util.*;
@@ -47,6 +51,14 @@ public class UserServiceImpl extends ServiceImpl<UserMapper, User> implements Us
     @Autowired
     JwtUtils jwtUtils;
 
+    @Autowired
+    UserRoleService userRoleService;
+
+    @Autowired
+    RoleService roleService;
+
+    @Autowired
+    MQSender mqSender;
 
     public boolean registerCheck(String email,String code){
         String oldCode =(String) redisUtils.get(CODE_KEY + email);
@@ -79,11 +91,7 @@ public class UserServiceImpl extends ServiceImpl<UserMapper, User> implements Us
 
     @Override
     public String mailSend(String email) {
-        //邮箱注册,验证码15分钟有效
-        String code = javaMailUtils.getRandCode();
-        redisUtils.set(CODE_KEY + email, code,15*60);
-        String context = "您的验证码为: "+code+" 有效期为15分钟，请不要告诉他人噢(⊙o⊙)";
-        javaMailUtils.sendOneEmail(email,"博客注册验证码",context);
+        mqSender.sendMessage("用户注册eamil-send", email);
         return "验证码已发送到您的邮箱，请稍后。";
     }
 
@@ -98,7 +106,12 @@ public class UserServiceImpl extends ServiceImpl<UserMapper, User> implements Us
         temp.setStatus(0);
         temp.setCreated(DateUtils.getCurrentTime());
         temp.setLastLogin(DateUtils.getCurrentTime());
-        userMapper.insert(temp);
+        save(temp);
+        // 在用户-角色表userRole中添加游客角色的记录
+        UserRole userRole = new UserRole();
+        userRole.setUserId(temp.getId());
+        userRole.setRoleId(2L);
+        userRoleService.save(userRole);
         return "邮箱："+temp.getEmail()+" 的新用户创建成功！";
     }
 

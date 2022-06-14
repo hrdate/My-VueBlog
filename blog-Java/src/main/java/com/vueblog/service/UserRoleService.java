@@ -1,5 +1,7 @@
 package com.vueblog.service;
 
+import com.vueblog.common.lang.Result;
+import com.vueblog.dto.UpdateUserRoleDTO;
 import com.vueblog.entity.UserRole;
 import com.baomidou.mybatisplus.extension.service.IService;
 
@@ -13,4 +15,5 @@ import com.baomidou.mybatisplus.extension.service.IService;
  */
 public interface UserRoleService extends IService<UserRole> {
 
+    Result updateUserRole(UpdateUserRoleDTO request);
 }

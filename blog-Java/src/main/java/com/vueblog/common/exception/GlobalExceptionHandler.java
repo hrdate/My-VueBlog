@@ -19,7 +19,7 @@ public class GlobalExceptionHandler {
     @ExceptionHandler(value = ShiroException.class)
     public Result handler(ShiroException e) {
         log.error("运行时异常：----------------{}", e);
-        return Result.fail(401, e.getMessage(), "shiro异常");
+        return Result.fail(401, e.getMessage(), "权限shiro异常");
     }
 
     //处理实体校验的异常
@@ -47,7 +47,7 @@ public class GlobalExceptionHandler {
     @ExceptionHandler(value = RuntimeException.class)
     public Result handler(RuntimeException e) {
         log.error("运行时异常：----------------{}", e);
-        return Result.fail(e.getMessage(),"处理大异常");
+        return Result.fail(e.getMessage(),"服务端运行时出现大异常");
     }
 
 }

@@ -32,7 +32,7 @@ public class Swagger2Config {
                 .title("博客api文档")
                 .description("springboot+vue开发的博客项目")
                 .termsOfServiceUrl("127.0.0.1")
-                .version("1.0")
+                .version("2.0")
                 .build();
     }
 

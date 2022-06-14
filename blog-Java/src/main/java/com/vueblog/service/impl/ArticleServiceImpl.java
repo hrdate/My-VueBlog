@@ -20,6 +20,8 @@ import com.vueblog.util.ShiroUtil;
 import com.vueblog.vo.ArchiveVO;
 import com.vueblog.vo.ArticleVO;
 import com.vueblog.vo.PageVO;
+import org.aspectj.lang.annotation.Before;
+import org.springframework.beans.factory.InitializingBean;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Lazy;
 import org.springframework.scheduling.annotation.Async;
@@ -44,7 +46,7 @@ import static com.vueblog.common.constant.SystemConst.ARTICLE_NOT_DELECT;
  * @since 2021-12-06
  */
 @Service
-public class ArticleServiceImpl extends ServiceImpl<ArticleMapper, Article> implements ArticleService {
+public class ArticleServiceImpl extends ServiceImpl<ArticleMapper, Article> implements ArticleService, InitializingBean {
 
     @Autowired
     private ArticleMapper articleMapper;
@@ -68,6 +70,8 @@ public class ArticleServiceImpl extends ServiceImpl<ArticleMapper, Article> impl
         return articleMapper.listArticles(currentPage - 1, pageSize);
     }
 
+
+
     @Override
     public PageVO<ArticleVO> articleList(Integer currentPage, Integer pageSize) {
         IPage<Article> pageData;
@@ -77,7 +81,7 @@ public class ArticleServiceImpl extends ServiceImpl<ArticleMapper, Article> impl
         List<ArticleVO> articleVOS = BeanCopyUtil.copyList(pageData.getRecords(), ArticleVO.class);
         articleVOS.forEach(item ->{
             item.setArticleLike((redisUtils.hHasKey(ARTICLE_LIKE_COUNT, item.getId().toString()))
-                    ? Long.valueOf((Integer)redisService.hGet(ARTICLE_LIKE_COUNT, item.getId().toString())) : 0);
+                    ? Long.valueOf((Integer)redisUtils.hget(ARTICLE_LIKE_COUNT, item.getId().toString())) : 0);
             item.setViewsCount( redisUtils.hHasKey(ARTICLE_VIEWS_COUNT , String.valueOf(item.getId()))
                     ? Long.valueOf((Integer)redisUtils.hget(ARTICLE_VIEWS_COUNT , String.valueOf(item.getId()))) : item.getViewsCount() );
         });
@@ -126,17 +130,19 @@ public class ArticleServiceImpl extends ServiceImpl<ArticleMapper, Article> impl
     public ArticleVO getArticleById(Long articleId) {
         Article article = articleMapper.selectById(articleId);
         Assert.notNull(article, "该博客已被删除");
-        Long articleViewsCount;
-        if(!redisUtils.hHasKey(ARTICLE_VIEWS_COUNT , articleId.toString())){
-            articleViewsCount = article.getViewsCount();
-            redisUtils.hset(ARTICLE_VIEWS_COUNT , String.valueOf(articleId),articleViewsCount);
+        Long articleViewsCount = article.getViewsCount();
+        if(redisUtils.hHasKey(ARTICLE_VIEWS_COUNT , articleId.toString())){
+            articleViewsCount =  1L * (Integer)redisUtils.hget(ARTICLE_VIEWS_COUNT, articleId.toString());
         }
+        articleViewsCount++;
+        article.setViewsCount(articleViewsCount);
+        // 更新缓存中文章浏览量+1
+        redisUtils.hset(ARTICLE_VIEWS_COUNT , articleId.toString(),articleViewsCount);
+        // 转化成vo
         ArticleVO articleVO = BeanCopyUtil.copyObject(article,ArticleVO.class);
-        //更新缓存中文章浏览量+1
-//        redisUtils.hincr(ARTICLE_VIEWS_COUNT , String.valueOf(articleId),1.0);
         this.updateArticleViewsCount(articleId);
         articleVO.setArticleLike((redisUtils.hHasKey(ARTICLE_LIKE_COUNT, articleId.toString()))
-                ? Long.valueOf((Integer)redisService.hGet(ARTICLE_LIKE_COUNT, articleId.toString())) : 0);
+                ? Long.valueOf((Integer)redisUtils.hget(ARTICLE_LIKE_COUNT, articleId.toString())) : 0);
         return  articleVO;
     }
 
@@ -158,6 +164,10 @@ public class ArticleServiceImpl extends ServiceImpl<ArticleMapper, Article> impl
         }
     }
 
+    /**
+     *
+     * @return 获取最新的4个文章
+     */
     @Override
     public List<ArticleLatestDTO> getArticleLatest() {
         List<Article> articleList = articleMapper.selectList(new LambdaQueryWrapper<Article>()
@@ -178,7 +188,7 @@ public class ArticleServiceImpl extends ServiceImpl<ArticleMapper, Article> impl
             temp = new Article();
             temp.setUserId(ShiroUtil.getProfile().getId());
             temp.setCreated(DateUtils.getCurrentTime());
-            temp.setViewsCount(0);
+            temp.setViewsCount(0L);
             //更新网站信息
         }
         BeanUtil.copyProperties(article,temp,"viewsCount","created","articleLike");
@@ -234,13 +244,13 @@ public class ArticleServiceImpl extends ServiceImpl<ArticleMapper, Article> impl
             //已点过赞
             redisUtils.setRemove(articleLikeKey ,articleId);
             // 文章点赞量-1
-            redisService.hDecr(ARTICLE_LIKE_COUNT, articleId.toString(), 1L);
+            redisUtils.hdecr(ARTICLE_LIKE_COUNT, articleId.toString(), 1.0);
             like_or_not = -1;
         }else {
             //未点过赞
             redisUtils.sSet(articleLikeKey,articleId);
             // 文章点赞量+1
-            redisService.hIncr(ARTICLE_LIKE_COUNT, articleId.toString(), 1L);
+            redisUtils.hincr(ARTICLE_LIKE_COUNT, articleId.toString(), 1.0);
         }
         return "文章:"+ articleId + (like_or_not == 1 ? "点赞":"取消点赞");
     }
@@ -280,4 +290,11 @@ public class ArticleServiceImpl extends ServiceImpl<ArticleMapper, Article> impl
         log.debug("文章浏览量同步");
     }
 
+    @Override
+    public void afterPropertiesSet() throws Exception {
+        List<Article> articleList = this.list();
+        for(Article article : articleList) {
+            redisService.hSet(ARTICLE_LIKE_COUNT,article.getId().toString() , article.getViewsCount().toString());
+        }
+    }
 }

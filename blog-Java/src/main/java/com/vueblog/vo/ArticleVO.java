@@ -42,7 +42,7 @@ public class ArticleVO {
     /**
      * 文章标签id
      */
-    private long tagId;
+    private Long tagId;
 
     /**
      * 文章标签名
@@ -52,12 +52,12 @@ public class ArticleVO {
     /**
      * 文章标签id
      */
-    private long viewsCount;
+    private Long viewsCount;
 
     /**
      * 文章是否置顶
      */
-    private int isTop;
+    private Integer isTop;
 
     /**
      * 文章类型，原创、转载、翻译

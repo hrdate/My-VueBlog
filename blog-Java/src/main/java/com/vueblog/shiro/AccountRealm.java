@@ -1,7 +1,13 @@
 package com.vueblog.shiro;
 
 import cn.hutool.core.bean.BeanUtil;
+import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
+import com.baomidou.mybatisplus.core.toolkit.Wrappers;
+import com.vueblog.entity.Role;
 import com.vueblog.entity.User;
+import com.vueblog.entity.UserRole;
+import com.vueblog.service.RoleService;
+import com.vueblog.service.UserRoleService;
 import com.vueblog.service.UserService;
 import com.vueblog.util.JwtUtils;
 import com.vueblog.util.ShiroUtil;
@@ -27,6 +33,12 @@ public class AccountRealm extends AuthorizingRealm  {
     @Autowired
     UserService userService;
 
+    @Autowired
+    UserRoleService userRoleService;
+
+    @Autowired
+    RoleService roleService;
+
     @Override
     public boolean supports(AuthenticationToken token) {
         //为了让realm支持jwt的凭证校验
@@ -40,6 +52,14 @@ public class AccountRealm extends AuthorizingRealm  {
         List<String> roles = new ArrayList<>();
         if(user.getId().equals(1L)){
             roles.add("admin");
+        } else {
+            LambdaQueryWrapper<UserRole> wrapperUserRole = Wrappers.lambdaQuery();
+            wrapperUserRole.eq(UserRole::getUserId,user.getId());
+            UserRole userRole = userRoleService.getOne(wrapperUserRole);
+            LambdaQueryWrapper<Role> wrapperRole = Wrappers.lambdaQuery();
+            wrapperRole.eq(Role::getId, userRole.getRoleId());
+            Role one = roleService.getOne(wrapperRole);
+            roles.add(one.getRoleLabel());
         }
         //构建资源校验
         SimpleAuthorizationInfo authorizationInfo = new SimpleAuthorizationInfo();

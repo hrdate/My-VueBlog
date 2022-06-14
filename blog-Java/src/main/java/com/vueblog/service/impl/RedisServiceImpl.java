@@ -2,6 +2,7 @@ package com.vueblog.service.impl;
 
 
 import com.vueblog.service.RedisService;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Lazy;
 import org.springframework.data.domain.Sort;
 import org.springframework.data.geo.Distance;
@@ -32,7 +33,7 @@ import java.util.stream.Collectors;
  **/
 @Service
 public class RedisServiceImpl implements RedisService {
-    @Resource
+    @Autowired
     private RedisTemplate<String, Object> redisTemplate;
 
     @Override

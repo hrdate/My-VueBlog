@@ -16,6 +16,7 @@ import io.swagger.annotations.ApiOperation;
 import io.swagger.models.auth.In;
 import org.apache.shiro.authz.annotation.RequiresAuthentication;
 import org.apache.shiro.authz.annotation.RequiresRoles;
+import org.springframework.beans.factory.InitializingBean;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
@@ -34,15 +35,16 @@ import java.util.List;
  */
 @Api(tags = "文章模块")
 @RestController
-public class ArticleController {
+public class ArticleController  {
 
     @Autowired
     private ArticleService articleService;
 
+
+
     @ApiOperation(value = "前台首页分页查看文章列表")
     @RequestMapping(value = "/article/articles",method = RequestMethod.GET)
     public Result articleList(@RequestParam(defaultValue = "1") @RequestBody Integer currentPage,@RequestParam(defaultValue = "5") @RequestBody Integer pageSize){
-//        return Result.succ("测试");
         return Result.succ(articleService.listArticles(currentPage,pageSize));
     }
 
