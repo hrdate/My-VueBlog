@@ -57,7 +57,7 @@ public class AccountController {
 
         response.setHeader("Authorization", jwt);
         response.setHeader("Access-control-Expose-Headers", "Authorization");
-        redisUtils.sSet(ARTICLE_USER_LIKE + user.getId(),new Integer(0));
+        redisUtils.sSet(ARTICLE_USER_LIKE + user.getId(), 0);
         Set<Object> articleLikeSet = (Set<Object>) redisUtils.sGet(ARTICLE_USER_LIKE + user.getId());
 
         return Result.succ(MapUtil.builder()

@@ -20,7 +20,6 @@ import com.vueblog.util.ShiroUtil;
 import com.vueblog.vo.ArchiveVO;
 import com.vueblog.vo.ArticleVO;
 import com.vueblog.vo.PageVO;
-import org.aspectj.lang.annotation.Before;
 import org.springframework.beans.factory.InitializingBean;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Lazy;
@@ -75,31 +74,35 @@ public class ArticleServiceImpl extends ServiceImpl<ArticleMapper, Article> impl
     @Override
     public PageVO<ArticleVO> articleList(Integer currentPage, Integer pageSize) {
         IPage<Article> pageData;
-        if(currentPage == null || currentPage < 1) currentPage = 1;
+        if(currentPage == null || currentPage < 1) {
+            currentPage = 1;
+        }
         Page page = new Page(currentPage, pageSize);
         pageData = articleMapper.selectPage(page, new LambdaQueryWrapper<Article>().orderByDesc(Article::getIsTop).orderByDesc(Article::getCreated));
-        List<ArticleVO> articleVOS = BeanCopyUtil.copyList(pageData.getRecords(), ArticleVO.class);
-        articleVOS.forEach(item ->{
+        List<ArticleVO> articleVOList = BeanCopyUtil.copyList(pageData.getRecords(), ArticleVO.class);
+        articleVOList.forEach(item ->{
             item.setArticleLike((redisUtils.hHasKey(ARTICLE_LIKE_COUNT, item.getId().toString()))
                     ? Long.valueOf((Integer)redisUtils.hget(ARTICLE_LIKE_COUNT, item.getId().toString())) : 0);
             item.setViewsCount( redisUtils.hHasKey(ARTICLE_VIEWS_COUNT , String.valueOf(item.getId()))
                     ? Long.valueOf((Integer)redisUtils.hget(ARTICLE_VIEWS_COUNT , String.valueOf(item.getId()))) : item.getViewsCount() );
         });
-        return new PageVO<ArticleVO>(articleVOS, pageData.getTotal());
+        return new PageVO<ArticleVO>(articleVOList, pageData.getTotal());
     }
 
     @Override
     public PageVO<ArticleAdminDTO> adminArticleList(Integer currentPage, Integer pageSize, Integer isDelete, Integer tagId) {
-        if(currentPage == null || currentPage < 1) currentPage = 1;
-        IPage<Article> pageData;
-        Page page = new Page(currentPage, pageSize);
-        pageData = articleMapper.selectPage(page,new LambdaQueryWrapper<Article>().eq(tagId != -1,Article::getTagId,tagId)
+        if(currentPage == null || currentPage < 1) {
+            currentPage = 1;
+        }
+        IPage<Article> pageData = articleMapper.selectPage(new Page(currentPage, pageSize) ,new LambdaQueryWrapper<Article>().eq(tagId != -1,Article::getTagId,tagId)
                 .eq(isDelete != -1,Article::getIsDelete, isDelete).orderByDesc(Article::getIsTop).orderByAsc(Article::getCreated));
         List<ArticleAdminDTO> articleAdminDTOList = BeanCopyUtil.copyList(pageData.getRecords(), ArticleAdminDTO.class);
         articleAdminDTOList.forEach(item -> {
             item.setCommentNum(commentsService.commentsNumberByArticle(item.getId()));
+
             item.setArticleLike((redisUtils.hHasKey(ARTICLE_LIKE_COUNT, item.getId().toString()))
                     ? Long.valueOf((Integer)redisService.hGet(ARTICLE_LIKE_COUNT, item.getId().toString())) : 0);
+
             item.setViewsCount( redisUtils.hHasKey(ARTICLE_VIEWS_COUNT , String.valueOf(item.getId()))
                     ? Long.valueOf((Integer)redisUtils.hget(ARTICLE_VIEWS_COUNT , String.valueOf(item.getId()))) : item.getViewsCount() );
         });
@@ -108,22 +111,21 @@ public class ArticleServiceImpl extends ServiceImpl<ArticleMapper, Article> impl
 
     @Override
     public PageVO<ArchiveVO> archivesList(Integer currentPage, Integer pageSize) {
-        if(currentPage == null || currentPage < 1) currentPage = 1;
-        IPage<Article> pageData;
-        Page page = new Page(currentPage, pageSize);
-        pageData = articleMapper.selectPage(page,new LambdaQueryWrapper<Article>()
+        if(currentPage == null || currentPage < 1) {
+            currentPage = 1;
+        }
+        IPage pageData = articleMapper.selectPage(new Page(currentPage, pageSize) ,new LambdaQueryWrapper<Article>()
                 .select(Article::getId,Article::getTitle,Article::getCreated)
                 .eq(Article::getIsDelete,ARTICLE_NOT_DELECT ).orderByDesc(Article::getIsTop).orderByAsc(Article::getCreated));
-        List<ArchiveVO> archiveVOList = BeanCopyUtil.copyList(pageData.getRecords(), ArchiveVO.class);
 
+        List<ArchiveVO> archiveVOList = BeanCopyUtil.copyList(pageData.getRecords(), ArchiveVO.class);
         return new PageVO<ArchiveVO>(archiveVOList,pageData.getTotal());
     }
 
     @Override
     public List<Article> getArticleDeleteList(Integer isDelete) {
-        List<Article> articleList = articleMapper.selectList(new LambdaQueryWrapper<Article>()
+        return articleMapper.selectList(new LambdaQueryWrapper<Article>()
                 .eq(Article::getIsDelete,isDelete).orderByDesc(Article::getCreated));
-        return articleList;
     }
 
     @Override
@@ -132,17 +134,18 @@ public class ArticleServiceImpl extends ServiceImpl<ArticleMapper, Article> impl
         Assert.notNull(article, "该博客已被删除");
         Long articleViewsCount = article.getViewsCount();
         if(redisUtils.hHasKey(ARTICLE_VIEWS_COUNT , articleId.toString())){
-            articleViewsCount =  1L * (Integer)redisUtils.hget(ARTICLE_VIEWS_COUNT, articleId.toString());
+            articleViewsCount =  (Long) redisUtils.hget(ARTICLE_VIEWS_COUNT, articleId.toString());
         }
         articleViewsCount++;
         article.setViewsCount(articleViewsCount);
         // 更新缓存中文章浏览量+1
-        redisUtils.hset(ARTICLE_VIEWS_COUNT , articleId.toString(),articleViewsCount);
+        redisUtils.hset(ARTICLE_VIEWS_COUNT, articleId.toString(), articleViewsCount);
+        this.updateArticleViewsCount(articleId);
+
         // 转化成vo
         ArticleVO articleVO = BeanCopyUtil.copyObject(article,ArticleVO.class);
-        this.updateArticleViewsCount(articleId);
         articleVO.setArticleLike((redisUtils.hHasKey(ARTICLE_LIKE_COUNT, articleId.toString()))
-                ? Long.valueOf((Integer)redisUtils.hget(ARTICLE_LIKE_COUNT, articleId.toString())) : 0);
+                ? (Long) redisUtils.hget(ARTICLE_LIKE_COUNT, articleId.toString()) : 0);
         return  articleVO;
     }
 
@@ -291,7 +294,7 @@ public class ArticleServiceImpl extends ServiceImpl<ArticleMapper, Article> impl
     }
 
     @Override
-    public void afterPropertiesSet() throws Exception {
+    public void afterPropertiesSet() {
         List<Article> articleList = this.list();
         for(Article article : articleList) {
             redisService.hSet(ARTICLE_LIKE_COUNT,article.getId().toString() , article.getViewsCount().toString());
